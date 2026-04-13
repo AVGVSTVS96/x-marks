@@ -1,6 +1,6 @@
 "use client"
 
-import { NotebookText } from "lucide-react"
+import { Folder, NotebookText } from "lucide-react"
 
 import type { ViewMode } from "@/lib/constants"
 import { TweetPreview } from "./tweet-preview"
@@ -11,6 +11,7 @@ import type { Doc } from "@convex/_generated/dataModel"
 interface BookmarkCardProps {
   bookmark: Doc<"bookmarks"> & {
     tags: Doc<"tags">[]
+    folders: Doc<"folders">[]
     hasNote: boolean
   }
   viewMode: ViewMode
@@ -31,8 +32,8 @@ export function BookmarkCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex rounded-lg border border-border text-left transition-colors hover:bg-muted/50",
-        viewMode === "list" ? "flex-col gap-4 p-5 lg:p-6" : "flex-col gap-3 p-4",
+        "flex rounded-2xl border border-border text-left transition-colors hover:bg-muted/50",
+        viewMode === "list" ? "flex-col gap-4 p-4 lg:p-5" : "flex-col gap-3 p-3",
         isActive && "border-foreground bg-muted/50"
       )}
     >
@@ -58,14 +59,23 @@ export function BookmarkCard({
       </div>
 
       <div className="flex items-center gap-2">
-        {bookmark.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+        {(bookmark.folders.length > 0 || bookmark.tags.length > 0) && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {bookmark.folders.map((folder) => (
+              <Badge
+                key={folder._id}
+                variant="secondary"
+                className="gap-1.5 text-[11px]"
+              >
+                <Folder data-icon="inline-start" />
+                {folder.name}
+              </Badge>
+            ))}
             {bookmark.tags.map((tag) => (
               <Badge
                 key={tag._id}
                 variant="outline"
-                className="rounded-md border-current px-1.5 py-0 font-heading text-[10px] uppercase tracking-wider"
-                style={{ color: tag.color }}
+                className="font-heading text-[10px] uppercase tracking-wider"
               >
                 {tag.name}
               </Badge>

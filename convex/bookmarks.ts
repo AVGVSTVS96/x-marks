@@ -12,11 +12,19 @@ async function enrichBookmarks(
 ) {
   const bookmarkIds = bookmarks.map((b) => b._id)
 
-  const [allTagJunctions, allNotes] = await Promise.all([
+  const [allTagJunctions, allFolderJunctions, allNotes] = await Promise.all([
     Promise.all(
       bookmarkIds.map((id) =>
         ctx.db
           .query("bookmarkTags")
+          .withIndex("by_bookmarkId", (q) => q.eq("bookmarkId", id))
+          .collect(),
+      ),
+    ),
+    Promise.all(
+      bookmarkIds.map((id) =>
+        ctx.db
+          .query("bookmarkFolders")
           .withIndex("by_bookmarkId", (q) => q.eq("bookmarkId", id))
           .collect(),
       ),
@@ -35,18 +43,27 @@ async function enrichBookmarks(
 
   const tagIdSet = new Set(allTagJunctions.flat().map((j) => j.tagId))
   const tagDocs = new Map<Id<"tags">, Doc<"tags">>()
-  await Promise.all(
-    [...tagIdSet].map(async (id) => {
+  const folderIdSet = new Set(allFolderJunctions.flat().map((j) => j.folderId))
+  const folderDocs = new Map<Id<"folders">, Doc<"folders">>()
+  await Promise.all([
+    ...[...tagIdSet].map(async (id) => {
       const doc = await ctx.db.get(id)
       if (doc) tagDocs.set(id, doc)
     }),
-  )
+    ...[...folderIdSet].map(async (id) => {
+      const doc = await ctx.db.get(id)
+      if (doc) folderDocs.set(id, doc)
+    }),
+  ])
 
   return bookmarks.map((b, i) => ({
     ...b,
     tags: (allTagJunctions[i] ?? [])
       .map((j) => tagDocs.get(j.tagId))
       .filter((t): t is Doc<"tags"> => t != null),
+    folders: (allFolderJunctions[i] ?? [])
+      .map((j) => folderDocs.get(j.folderId))
+      .filter((f): f is Doc<"folders"> => f != null),
     hasNote: allNotes[i] != null,
   }))
 }

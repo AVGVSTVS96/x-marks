@@ -60,22 +60,24 @@ export function TweetPreview({
             )}
           />
         )}
-        <div className="flex min-w-0 flex-col">
-          <span
-            className={cn(
-              "truncate font-medium leading-tight",
-              variant === "list" ? "text-[15px]" : "text-sm"
-            )}
-          >
-            {authorDisplayName}
-          </span>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 items-baseline gap-2">
+            <span
+              className={cn(
+                "truncate font-medium leading-tight",
+                variant === "list" ? "text-[15px]" : "text-sm"
+              )}
+            >
+              {authorDisplayName}
+            </span>
+            <span className="-translate-y-[6px] ml-auto shrink-0 font-heading text-[10px] text-muted-foreground">
+              {timeAgo}
+            </span>
+          </div>
           <span className="truncate text-xs text-muted-foreground">
             @{authorUsername}
           </span>
         </div>
-        <span className="ml-auto shrink-0 font-heading text-[10px] text-muted-foreground">
-          {timeAgo}
-        </span>
       </div>
 
       <p
