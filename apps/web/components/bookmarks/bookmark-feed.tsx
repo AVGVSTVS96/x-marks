@@ -3,12 +3,13 @@
 import { useDeferredValue, useMemo } from "react"
 import { usePreloadedQuery, type Preloaded } from "convex/react"
 
-import { useAppState } from "@/components/app-state-context"
+import { useAppState } from "@/components/layout/app-state-context"
 import { useBookmarkSearch } from "@/hooks/use-bookmarks"
 import { useViewPrefs } from "@/hooks/use-view-prefs"
 import { BookmarkCard } from "./bookmark-card"
 import { BookmarkGrid } from "./bookmark-grid"
-import { MediaMoodboard } from "./media-moodboard"
+import { MediaMoodboard } from "@/components/media/media-moodboard"
+import { EmptyState } from "@workspace/ui/components/empty-state"
 import { compareBookmarks } from "@convex/lib/compareBookmarks"
 import { api } from "@convex/_generated/api"
 
@@ -40,16 +41,19 @@ export function BookmarkFeed({ preloadedBookmarks }: BookmarkFeedProps) {
   if (displayedBookmarks === undefined || displayedBookmarks.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
-            {isSearching ? "No results" : "No bookmarks"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {isSearching
+        <EmptyState
+          title={
+            <span className="font-heading text-sm uppercase tracking-wider">
+              {isSearching ? "No results" : "No bookmarks"}
+            </span>
+          }
+          description={
+            isSearching
               ? "Try a different search term"
-              : "Sync your bookmarks from X to get started"}
-          </p>
-        </div>
+              : "Sync your bookmarks from X to get started"
+          }
+          className="gap-2 px-0 py-0"
+        />
       </div>
     )
   }

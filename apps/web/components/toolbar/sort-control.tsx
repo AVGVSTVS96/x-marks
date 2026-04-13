@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp } from "lucide-react"
 
 import { SORT_OPTIONS, type SortDirection, type SortField } from "@/lib/constants"
 import { Button } from "@workspace/ui/components/button"
+import { Label } from "@workspace/ui/components/label"
 import {
   Select,
   SelectContent,
@@ -25,9 +26,7 @@ export function SortControl({
 }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="font-heading text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-        Sort
-      </span>
+      <Label variant="eyebrow" className="font-heading">Sort</Label>
       <Select
         value={sortField}
         onValueChange={(value) => onSortFieldChange(value as SortField)}
@@ -46,7 +45,7 @@ export function SortControl({
       <Button
         variant="ghost"
         size="icon-xs"
-        className="rounded-lg"
+        radius="lg"
         aria-label={
           sortDirection === "desc"
             ? "Switch to ascending sort"

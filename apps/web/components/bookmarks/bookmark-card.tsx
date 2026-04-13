@@ -105,9 +105,9 @@ export function BookmarkCardSkeleton({ viewMode }: { viewMode: ViewMode }) {
       <TweetPreviewSkeleton variant={viewMode} />
 
       <div className="flex items-center gap-3">
-        <Skeleton className="h-2.5 w-14 rounded-lg" />
-        <Skeleton className="h-2.5 w-10 rounded-lg" />
-        <Skeleton className="h-2.5 w-16 rounded-lg" />
+        <Skeleton radius="lg" className="h-2.5 w-14" />
+        <Skeleton radius="lg" className="h-2.5 w-10" />
+        <Skeleton radius="lg" className="h-2.5 w-16" />
       </div>
     </div>
   )

@@ -7,7 +7,7 @@ import {
   AppStateProvider,
   type AppState,
   type BookmarkListItem,
-} from "@/components/app-state-context"
+} from "@/components/layout/app-state-context"
 import { BookmarkDetail } from "@/components/detail/bookmark-detail"
 import { ConvexProvider } from "@/components/providers/convex-provider"
 import { SidebarPanel } from "@/components/sidebar/sidebar-panel"

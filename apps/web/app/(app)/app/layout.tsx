@@ -5,10 +5,10 @@ import { redirect } from "next/navigation"
 
 import { api } from "@convex/_generated/api"
 
-import { AppShell } from "@/components/app-shell"
+import { AppShell } from "@/components/layout/app-shell"
 import { resolveAppSession } from "@/lib/server/app-session"
 import { buttonVariants } from "@workspace/ui/lib/button-variants"
-import { cn } from "@workspace/ui/lib/utils"
+import { Card } from "@workspace/ui/components/card"
 
 export default async function AppLayout({
   children,
@@ -26,20 +26,20 @@ export default async function AppLayout({
   if (appSession.status !== "ready") {
     return (
       <main className="flex min-h-svh items-center justify-center px-6 py-10">
-        <div className="flex w-full max-w-md flex-col gap-3 rounded-lg border border-border bg-card p-6">
-          <p className="font-heading text-sm uppercase tracking-[0.15em] text-foreground">
+        <Card padding="lg" gap="md" className="w-full max-w-md">
+          <p className="font-heading text-sm uppercase tracking-eyebrow text-foreground">
             xMarks
           </p>
           <p className="text-sm text-muted-foreground">{appSession.message}</p>
           <div className="pt-3">
             <Link
               href="/"
-              className={cn(buttonVariants({ variant: "outline" }), "rounded-lg")}
+              className={buttonVariants({ variant: "outline", radius: "lg" })}
             >
               Back home
             </Link>
           </div>
-        </div>
+        </Card>
       </main>
     )
   }

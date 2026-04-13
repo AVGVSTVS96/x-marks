@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { ClerkProvider } from "@clerk/nextjs"
 
 import "@workspace/ui/globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/layout/theme-provider"
 import { cn } from "@workspace/ui/lib/utils"
 
 const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY

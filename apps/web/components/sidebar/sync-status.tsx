@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 import { useSyncStatus } from "@/hooks/use-sync-status"
-import { cn } from "@workspace/ui/lib/utils"
+import { StatusDot } from "@workspace/ui/components/status-dot"
 
 export function SyncStatus({
   initialLastSyncAt,
@@ -34,12 +34,7 @@ export function SyncStatus({
 
   return (
     <div className="flex items-center gap-1.5">
-      <span
-        className={cn(
-          "size-1.5 rounded-full animate-pulse",
-          lastSyncAt ? "bg-emerald-500" : "bg-amber-500"
-        )}
-      />
+      <StatusDot status={lastSyncAt ? "success" : "warning"} pulse />
       <span className="font-heading text-[10px] uppercase tracking-wider text-muted-foreground">
         {formatSyncTime(lastSyncAt, now)}
       </span>

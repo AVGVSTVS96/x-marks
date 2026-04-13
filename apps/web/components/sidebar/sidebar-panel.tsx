@@ -41,7 +41,7 @@ export function SidebarPanel({
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-heading text-[10px] uppercase tracking-[0.15em]">
+          <SidebarGroupLabel className="font-heading text-[10px] uppercase tracking-eyebrow">
             Folders
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -57,7 +57,7 @@ export function SidebarPanel({
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel className="font-heading text-[10px] uppercase tracking-[0.15em]">
+          <SidebarGroupLabel className="font-heading text-[10px] uppercase tracking-eyebrow">
             Tags
           </SidebarGroupLabel>
           <SidebarGroupContent>

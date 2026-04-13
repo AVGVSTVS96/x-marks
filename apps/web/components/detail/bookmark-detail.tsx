@@ -2,19 +2,18 @@
 
 import { X } from "lucide-react"
 
-import type { BookmarkListItem } from "@/components/app-state-context"
+import type { BookmarkListItem } from "@/components/layout/app-state-context"
 import { useBookmarkDetail } from "@/hooks/use-bookmarks"
 import { BookmarkActions } from "./bookmark-actions"
 import { NoteEditor } from "./note-editor"
-import { sectionLabelClasses } from "./section-label"
 import { TagManager } from "./tag-manager"
-import { BookmarkMedia } from "@/components/bookmarks/bookmark-media"
+import { BookmarkMedia } from "@/components/media/bookmark-media"
 import { TweetPreview } from "@/components/bookmarks/tweet-preview"
 import { Button } from "@workspace/ui/components/button"
+import { Label } from "@workspace/ui/components/label"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Separator } from "@workspace/ui/components/separator"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { cn } from "@workspace/ui/lib/utils"
 
 interface BookmarkDetailProps {
   initialBookmark: BookmarkListItem
@@ -77,16 +76,16 @@ export function BookmarkDetail({
           <Separator />
 
           <div>
-            <h3 className={cn(sectionLabelClasses, "mb-2")}>Tags</h3>
+            <Label variant="eyebrow" className="mb-2">Tags</Label>
             <TagManager bookmarkId={bookmarkId} existingTags={display.tags} />
           </div>
 
           <Separator />
 
           <div>
-            <h3 className={cn(sectionLabelClasses, "mb-2")}>Note</h3>
+            <Label variant="eyebrow" className="mb-2">Note</Label>
             {isNoteLoading ? (
-              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton radius="lg" className="h-16 w-full" />
             ) : (
               <NoteEditor
                 key={bookmarkId}
@@ -120,8 +119,8 @@ function DetailShell({
   return (
     <div className="flex w-full shrink-0 flex-col border-l border-border bg-background lg:w-[clamp(18rem,40%,28rem)] xl:w-[min(38vw,32rem)] 2xl:w-[min(34vw,36rem)]">
       <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <span className={sectionLabelClasses}>Detail</span>
-        <Button variant="ghost" size="icon-xs" className="rounded-lg" onClick={onClose}>
+        <Label variant="eyebrow">Detail</Label>
+        <Button variant="ghost" size="icon-xs" radius="lg" onClick={onClose}>
           <X className="size-3.5" />
         </Button>
       </div>

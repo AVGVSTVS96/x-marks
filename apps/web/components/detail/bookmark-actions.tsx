@@ -6,7 +6,6 @@ import { useMutation } from "convex/react"
 
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
-import { sectionLabelClasses } from "./section-label"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -17,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { cn } from "@workspace/ui/lib/utils"
+import { Label } from "@workspace/ui/components/label"
 
 interface BookmarkActionsProps {
   bookmarkId: Id<"bookmarks">
@@ -47,15 +46,15 @@ export function BookmarkActions({
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className={cn(sectionLabelClasses, "mb-0")}>Actions</h3>
+      <Label variant="eyebrow">Actions</Label>
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" className="gap-1 rounded-lg" onClick={openOnX}>
+        <Button variant="outline" size="sm" radius="lg" className="gap-1" onClick={openOnX}>
           <ExternalLink className="size-4" />
           View on X
         </Button>
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogTrigger
-            render={<Button variant="destructive" size="sm" className="gap-1 rounded-lg" />}
+            render={<Button variant="destructive" size="sm" radius="lg" className="gap-1" />}
           >
             <Trash2 className="size-4" />
             Remove
@@ -66,10 +65,10 @@ export function BookmarkActions({
               This bookmark will be permanently removed from xMarks.
             </DialogDescription>
             <DialogFooter>
-              <DialogClose render={<Button variant="outline" size="sm" className="rounded-lg" />}>
+              <DialogClose render={<Button variant="outline" size="sm" radius="lg" />}>
                 Cancel
               </DialogClose>
-              <Button variant="destructive" size="sm" className="rounded-lg" onClick={handleDelete}>
+              <Button variant="destructive" size="sm" radius="lg" onClick={handleDelete}>
                 Remove
               </Button>
             </DialogFooter>

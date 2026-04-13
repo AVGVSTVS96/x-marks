@@ -5,10 +5,10 @@ import { useState } from "react"
 
 import { TAG_COLORS } from "@/lib/constants"
 import { useTagMutations, useTags } from "@/hooks/use-tags"
-import { sectionLabelClasses } from "./section-label"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
+import { Label } from "@workspace/ui/components/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
 import type { Doc, Id } from "@convex/_generated/dataModel"
 
@@ -42,7 +42,8 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
           <Badge
             key={tag._id}
             variant="outline"
-            className="gap-1 rounded-md border-current pr-1 font-heading text-[10px] uppercase tracking-wider"
+            radius="md"
+            className="gap-1 border-current pr-1 font-heading text-[10px] uppercase tracking-wider"
             style={{ color: tag.color }}
           >
             {tag.name}
@@ -59,7 +60,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
 
       <Popover>
         <PopoverTrigger
-          render={<Button variant="ghost" size="xs" className="w-fit gap-1 rounded-lg" />}
+          render={<Button variant="ghost" size="xs" radius="lg" className="w-fit gap-1" />}
         >
           <Plus className="size-3.5" />
           Add tag
@@ -68,7 +69,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
           <div className="flex flex-col gap-2">
             {unassignedTags.length > 0 ? (
               <div className="flex flex-col gap-1">
-                <span className={sectionLabelClasses}>Existing</span>
+                <Label variant="eyebrow">Existing</Label>
                 <div className="flex flex-wrap gap-1">
                   {unassignedTags.map((tag) => (
                     <button
@@ -78,7 +79,8 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
                     >
                       <Badge
                         variant="outline"
-                        className="cursor-pointer rounded-md border-current font-heading text-[10px] uppercase tracking-wider hover:bg-muted"
+                        radius="md"
+                        className="cursor-pointer border-current font-heading text-[10px] uppercase tracking-wider hover:bg-muted"
                         style={{ color: tag.color }}
                       >
                         {tag.name}
@@ -90,7 +92,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
             ) : null}
 
             <div className="flex flex-col gap-1.5">
-              <span className={sectionLabelClasses}>Create new</span>
+              <Label variant="eyebrow">Create new</Label>
               <div className="flex gap-1.5">
                 <Input
                   value={newTagName}
@@ -106,7 +108,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
                 <Button
                   size="icon-xs"
                   variant="outline"
-                  className="rounded-lg"
+                  radius="lg"
                   onClick={handleCreateAndAssign}
                   disabled={!newTagName.trim()}
                 >

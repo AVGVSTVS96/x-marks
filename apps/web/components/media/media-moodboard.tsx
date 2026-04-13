@@ -3,11 +3,17 @@
 import Image from "next/image"
 import { Play } from "lucide-react"
 
-import type { BookmarkListItem } from "@/components/app-state-context"
+import type { BookmarkListItem } from "@/components/layout/app-state-context"
+import { EmptyState } from "@workspace/ui/components/empty-state"
 import { cn } from "@workspace/ui/lib/utils"
-import type { Doc, Id } from "@convex/_generated/dataModel"
-
-type MediaItem = Doc<"bookmarks">["media"][number]
+import type { Id } from "@convex/_generated/dataModel"
+import { MediaBadge } from "./media-badge"
+import { MoodboardLayout } from "./moodboard-layout"
+import {
+  formatDuration,
+  pickPlayableUrl,
+  type MediaItem,
+} from "./media-utils"
 
 interface MediaMoodboardProps {
   bookmarks: BookmarkListItem[]
@@ -25,7 +31,7 @@ interface Tile {
 
 function buildTiles(
   bookmarks: BookmarkListItem[],
-  activeBookmarkId: Id<"bookmarks"> | null,
+  activeBookmarkId: Id<"bookmarks"> | null
 ): Tile[] {
   const tiles: Tile[] = []
   for (const bookmark of bookmarks) {
@@ -42,20 +48,6 @@ function buildTiles(
   return tiles
 }
 
-function formatDuration(ms: number) {
-  const total = Math.round(ms / 1000)
-  const minutes = Math.floor(total / 60)
-  const seconds = total % 60
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`
-}
-
-function pickPlayableUrl(item: MediaItem) {
-  const mp4 = item.variants
-    ?.filter((v) => v.contentType === "video/mp4" && v.url)
-    .sort((a, b) => (b.bitRate ?? 0) - (a.bitRate ?? 0))[0]?.url
-  return mp4 ?? item.url
-}
-
 export function MediaMoodboard({
   bookmarks,
   activeBookmarkId,
@@ -66,45 +58,33 @@ export function MediaMoodboard({
   if (tiles.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
-            No media
-          </p>
-          <p className="text-xs text-muted-foreground">
-            None of your bookmarks have photos or videos yet
-          </p>
-        </div>
+        <EmptyState
+          title={
+            <span className="font-heading text-sm uppercase tracking-wider">
+              No media
+            </span>
+          }
+          description="None of your bookmarks have photos or videos yet"
+          className="gap-2 px-0 py-0"
+        />
       </div>
     )
   }
 
   return (
-    <div className="@container min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-      <div
-        className={cn(
-          "mx-auto w-full max-w-[1560px] px-4 py-5",
-          "columns-1 gap-3 @md:columns-2 @2xl:columns-3 @6xl:columns-4",
-        )}
-      >
-        {tiles.map((tile) => (
-          <MoodboardTile
-            key={tile.key}
-            tile={tile}
-            onClick={() => onBookmarkSelect(tile.bookmark, tile.mediaIndex)}
-          />
-        ))}
-      </div>
-    </div>
+    <MoodboardLayout>
+      {tiles.map((tile) => (
+        <MoodboardTile
+          key={tile.key}
+          tile={tile}
+          onClick={() => onBookmarkSelect(tile.bookmark, tile.mediaIndex)}
+        />
+      ))}
+    </MoodboardLayout>
   )
 }
 
-function MoodboardTile({
-  tile,
-  onClick,
-}: {
-  tile: Tile
-  onClick: () => void
-}) {
+function MoodboardTile({ tile, onClick }: { tile: Tile; onClick: () => void }) {
   const { item, isActive } = tile
   const isVideo = item.type === "video"
   const isGif = item.type === "animated_gif"
@@ -118,7 +98,7 @@ function MoodboardTile({
       onClick={onClick}
       className={cn(
         "group relative mb-3 block w-full overflow-hidden rounded-sm border border-border bg-muted transition-colors break-inside-avoid hover:border-foreground/40",
-        isActive && "border-foreground",
+        isActive && "border-foreground"
       )}
     >
       {isGif ? (
@@ -154,18 +134,12 @@ function MoodboardTile({
             </div>
           </div>
           {item.durationMs != null && (
-            <span className="absolute bottom-1.5 right-1.5 rounded border border-border bg-background/80 px-1.5 py-0.5 font-heading text-[10px] leading-none text-foreground backdrop-blur-sm">
-              {formatDuration(item.durationMs)}
-            </span>
+            <MediaBadge>{formatDuration(item.durationMs)}</MediaBadge>
           )}
         </>
       )}
 
-      {isGif && (
-        <span className="absolute bottom-1.5 right-1.5 rounded border border-border bg-background/80 px-1.5 py-0.5 font-heading text-[10px] leading-none text-foreground backdrop-blur-sm">
-          GIF
-        </span>
-      )}
+      {isGif && <MediaBadge>GIF</MediaBadge>}
     </button>
   )
 }

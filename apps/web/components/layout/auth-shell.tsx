@@ -5,7 +5,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Separator } from "@workspace/ui/components/separator"
 import { buttonVariants } from "@workspace/ui/lib/button-variants"
 
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { cn } from "@workspace/ui/lib/utils"
 
 type AuthShellProps = {

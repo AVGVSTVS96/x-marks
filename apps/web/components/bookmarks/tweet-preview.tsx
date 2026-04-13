@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 
-import { BookmarkMedia } from "@/components/bookmarks/bookmark-media"
+import { BookmarkMedia } from "@/components/media/bookmark-media"
 import type { ViewMode } from "@/lib/constants"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
@@ -108,22 +108,20 @@ export function TweetPreviewSkeleton({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <Skeleton
-          className={cn(
-            "shrink-0 rounded-lg",
-            variant === "list" ? "size-10" : "size-8",
-          )}
+          radius="lg"
+          className={cn("shrink-0", variant === "list" ? "size-10" : "size-8")}
         />
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
             <Skeleton
-              className={cn(
-                "rounded-lg",
-                variant === "list" ? "h-[15px] w-32" : "h-3.5 w-28",
-              )}
+              radius="lg"
+              className={
+                variant === "list" ? "h-[15px] w-32" : "h-3.5 w-28"
+              }
             />
-            <Skeleton className="h-2.5 w-8 rounded-lg" />
+            <Skeleton radius="lg" className="h-2.5 w-8" />
           </div>
-          <Skeleton className="h-3 w-20 rounded-lg" />
+          <Skeleton radius="lg" className="h-3 w-20" />
         </div>
       </div>
 
@@ -136,8 +134,8 @@ export function TweetPreviewSkeleton({
         {Array.from({ length: lineCount }).map((_, index) => (
           <Skeleton
             key={index}
+            radius="lg"
             className={cn(
-              "rounded-lg",
               variant === "list" ? "h-[15px]" : "h-3.5",
               lineWidths[index % lineWidths.length],
             )}
