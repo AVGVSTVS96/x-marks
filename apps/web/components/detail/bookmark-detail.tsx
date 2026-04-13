@@ -50,7 +50,7 @@ export function BookmarkDetail({ bookmarkId, onClose }: BookmarkDetailProps) {
           <p className="text-sm text-muted-foreground">Bookmark not found</p>
         </div>
       ) : (
-        <ScrollArea className="flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-4 p-4">
             <TweetPreview
               authorUsername={bookmark.authorUsername}

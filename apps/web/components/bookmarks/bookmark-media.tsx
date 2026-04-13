@@ -1,9 +1,11 @@
 "use client"
 
-import { Play } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { ChevronLeft, ChevronRight, Play, X } from "lucide-react"
 import Image from "next/image"
 
 import type { ViewMode } from "@/lib/constants"
+import { Dialog, DialogContent } from "@workspace/ui/components/dialog"
 import { cn } from "@workspace/ui/lib/utils"
 
 type MediaItem = {
@@ -45,13 +47,7 @@ export function BookmarkMedia({
   if (media.length === 0) return null
 
   if (context === "detail") {
-    return (
-      <div className="flex flex-col gap-2">
-        {media.map((item, index) => (
-          <DetailMediaItem key={index} item={item} />
-        ))}
-      </div>
-    )
+    return <DetailGallery media={media} />
   }
 
   const visible = media.slice(0, 2)
@@ -138,6 +134,135 @@ function CardMediaItem({
   )
 }
 
+function DetailGallery({ media }: { media: MediaItem[] }) {
+  const photos = media.filter((item) => item.type === "photo")
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const isOpen = lightboxIndex !== null
+  const activePhoto = lightboxIndex !== null ? photos[lightboxIndex] : null
+
+  const close = useCallback(() => setLightboxIndex(null), [])
+  const next = useCallback(
+    () =>
+      setLightboxIndex((i) =>
+        i === null ? null : (i + 1) % photos.length,
+      ),
+    [photos.length],
+  )
+  const prev = useCallback(
+    () =>
+      setLightboxIndex((i) =>
+        i === null ? null : (i - 1 + photos.length) % photos.length,
+      ),
+    [photos.length],
+  )
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") next()
+      else if (event.key === "ArrowLeft") prev()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [isOpen, next, prev])
+
+  return (
+    <>
+      <div className="flex flex-col gap-2">
+        {media.map((item, index) => {
+          if (item.type === "photo") {
+            const photoIndex = photos.indexOf(item)
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setLightboxIndex(photoIndex)}
+                className="group relative block w-full overflow-hidden rounded-lg border border-border bg-muted"
+              >
+                <Image
+                  src={item.url}
+                  alt={item.altText ?? ""}
+                  width={item.width ?? 1200}
+                  height={item.height ?? 800}
+                  className="h-auto w-full object-contain transition-opacity group-hover:opacity-90"
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                />
+              </button>
+            )
+          }
+          return <DetailMediaItem key={index} item={item} />
+        })}
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
+        {activePhoto && (
+          <DialogContent
+            showCloseButton={false}
+            className="grid size-full max-h-svh max-w-[100vw] place-items-center gap-0 border-none bg-transparent p-0 shadow-none ring-0 sm:max-w-[100vw]"
+          >
+            <div
+              className="relative flex size-full items-center justify-center"
+              onClick={close}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activePhoto.url}
+                alt={activePhoto.altText ?? ""}
+                width={activePhoto.width}
+                height={activePhoto.height}
+                onClick={(e) => e.stopPropagation()}
+                className="h-auto max-h-[90vh] w-auto min-w-[min(750px,92vw)] max-w-[92vw] rounded-lg"
+              />
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  close()
+                }}
+                className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full border border-border bg-background/80 text-foreground backdrop-blur-sm transition hover:bg-background"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+
+              {photos.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      prev()
+                    }}
+                    className="absolute left-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground backdrop-blur-sm transition hover:bg-background"
+                    aria-label="Previous photo"
+                  >
+                    <ChevronLeft className="size-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      next()
+                    }}
+                    className="absolute right-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground backdrop-blur-sm transition hover:bg-background"
+                    aria-label="Next photo"
+                  >
+                    <ChevronRight className="size-5" />
+                  </button>
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded border border-border bg-background/80 px-2 py-1 font-heading text-[10px] uppercase tracking-wider text-foreground backdrop-blur-sm">
+                    {(lightboxIndex ?? 0) + 1} / {photos.length}
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
+    </>
+  )
+}
+
 function DetailMediaItem({ item }: { item: MediaItem }) {
   if (item.type === "video") {
     return (
@@ -166,16 +291,5 @@ function DetailMediaItem({ item }: { item: MediaItem }) {
     )
   }
 
-  return (
-    <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted">
-      <Image
-        src={item.url}
-        alt={item.altText ?? ""}
-        width={item.width ?? 1200}
-        height={item.height ?? 800}
-        className="h-auto w-full object-contain"
-        sizes="(min-width: 1024px) 40vw, 100vw"
-      />
-    </div>
-  )
+  return null
 }
