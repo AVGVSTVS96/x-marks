@@ -3,10 +3,17 @@
 import { Folder, NotebookText } from "lucide-react"
 
 import type { ViewMode } from "@/lib/constants"
-import { TweetPreview } from "./tweet-preview"
+import { TweetPreview, TweetPreviewSkeleton } from "./tweet-preview"
 import { Badge } from "@workspace/ui/components/badge"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
 import type { Doc } from "@convex/_generated/dataModel"
+
+const cardLayoutClasses = (viewMode: ViewMode) =>
+  cn(
+    "flex rounded-2xl border border-border text-left transition-colors",
+    viewMode === "list" ? "flex-col gap-4 p-4 lg:p-5" : "flex-col gap-3 p-3"
+  )
 
 interface BookmarkCardProps {
   bookmark: Doc<"bookmarks"> & {
@@ -32,8 +39,8 @@ export function BookmarkCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex rounded-2xl border border-border text-left transition-colors hover:bg-muted/50",
-        viewMode === "list" ? "flex-col gap-4 p-4 lg:p-5" : "flex-col gap-3 p-3",
+        cardLayoutClasses(viewMode),
+        "hover:bg-muted/50",
         isActive && "border-foreground bg-muted/50"
       )}
     >
@@ -49,7 +56,7 @@ export function BookmarkCard({
 
       <div
         className={cn(
-          "flex items-center gap-3 font-heading uppercase tracking-wider text-muted-foreground",
+          "flex items-center gap-3 font-heading tracking-wider text-muted-foreground uppercase",
           viewMode === "list" ? "text-[11px]" : "text-[10px]"
         )}
       >
@@ -75,7 +82,7 @@ export function BookmarkCard({
               <Badge
                 key={tag._id}
                 variant="outline"
-                className="font-heading text-[10px] uppercase tracking-wider"
+                className="font-heading text-[10px] tracking-wider uppercase"
               >
                 {tag.name}
               </Badge>
@@ -89,6 +96,20 @@ export function BookmarkCard({
         )}
       </div>
     </button>
+  )
+}
+
+export function BookmarkCardSkeleton({ viewMode }: { viewMode: ViewMode }) {
+  return (
+    <div className={cardLayoutClasses(viewMode)}>
+      <TweetPreviewSkeleton variant={viewMode} />
+
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-2.5 w-14 rounded-lg" />
+        <Skeleton className="h-2.5 w-10 rounded-lg" />
+        <Skeleton className="h-2.5 w-16 rounded-lg" />
+      </div>
+    </div>
   )
 }
 

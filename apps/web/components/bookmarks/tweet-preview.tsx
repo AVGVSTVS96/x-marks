@@ -4,6 +4,7 @@ import Image from "next/image"
 
 import { BookmarkMedia } from "@/components/bookmarks/bookmark-media"
 import type { ViewMode } from "@/lib/constants"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
 
 interface TweetPreviewProps {
@@ -92,6 +93,57 @@ export function TweetPreview({
       {media.length > 0 && (
         <BookmarkMedia media={media} variant={variant} context="card" />
       )}
+    </div>
+  )
+}
+
+export function TweetPreviewSkeleton({
+  variant = "grid",
+}: {
+  variant?: ViewMode
+}) {
+  const lineCount = variant === "list" ? 6 : 4
+  const lineWidths = ["w-full", "w-11/12", "w-[96%]", "w-10/12", "w-full", "w-9/12"]
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <Skeleton
+          className={cn(
+            "shrink-0 rounded-lg",
+            variant === "list" ? "size-10" : "size-8",
+          )}
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <Skeleton
+              className={cn(
+                "rounded-lg",
+                variant === "list" ? "h-[15px] w-32" : "h-3.5 w-28",
+              )}
+            />
+            <Skeleton className="h-2.5 w-8 rounded-lg" />
+          </div>
+          <Skeleton className="h-3 w-20 rounded-lg" />
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          "flex flex-col",
+          variant === "list" ? "gap-2" : "gap-1.5",
+        )}
+      >
+        {Array.from({ length: lineCount }).map((_, index) => (
+          <Skeleton
+            key={index}
+            className={cn(
+              "rounded-lg",
+              variant === "list" ? "h-[15px]" : "h-3.5",
+              lineWidths[index % lineWidths.length],
+            )}
+          />
+        ))}
+      </div>
     </div>
   )
 }

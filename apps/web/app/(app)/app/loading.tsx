@@ -1,5 +1,6 @@
 "use client"
 
+import { BookmarkCardSkeleton } from "@/components/bookmarks/bookmark-card"
 import { BookmarkGrid } from "@/components/bookmarks/bookmark-grid"
 import { useViewPrefs } from "@/hooks/use-view-prefs"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -46,27 +47,13 @@ export default function Loading() {
     )
   }
 
+  const cardCount = viewMode === "list" ? 4 : 8
+
   return (
     <div className="@container flex min-w-0 flex-1 overflow-auto">
       <BookmarkGrid viewMode={viewMode} className="border-t border-border px-4 py-5">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="flex h-24 flex-col gap-2 overflow-hidden rounded-lg border border-border p-3"
-          >
-            <div className="flex items-center gap-2">
-              <Skeleton className="size-7 rounded-lg" />
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-2.5 w-24 rounded-lg" />
-                <Skeleton className="h-2.5 w-16 rounded-lg" />
-              </div>
-            </div>
-            <Skeleton className="h-4 w-full rounded-lg" />
-            <div className="mt-auto flex gap-3">
-              <Skeleton className="h-2.5 w-12 rounded-lg" />
-              <Skeleton className="h-2.5 w-12 rounded-lg" />
-            </div>
-          </div>
+        {Array.from({ length: cardCount }).map((_, index) => (
+          <BookmarkCardSkeleton key={index} viewMode={viewMode} />
         ))}
       </BookmarkGrid>
     </div>
