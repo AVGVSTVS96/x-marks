@@ -4,10 +4,15 @@ import { useCallback, useSyncExternalStore } from "react"
 
 import {
   DEFAULT_VIEW_PREFS,
+  VIEW_MODES,
   type SortDirection,
   type SortField,
   type ViewMode,
 } from "@/lib/constants"
+
+function isViewMode(value: unknown): value is ViewMode {
+  return VIEW_MODES.includes(value as ViewMode)
+}
 
 interface ViewPrefs {
   viewMode: ViewMode
@@ -20,7 +25,9 @@ const listeners = new Set<() => void>()
 
 function normalizePrefs(value: Partial<ViewPrefs> | null | undefined): ViewPrefs {
   return {
-    viewMode: value?.viewMode === "list" ? "list" : DEFAULT_VIEW_PREFS.viewMode,
+    viewMode: isViewMode(value?.viewMode)
+      ? value.viewMode
+      : DEFAULT_VIEW_PREFS.viewMode,
     sortField:
       value?.sortField === "createdAt"
         ? "createdAt"

@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutGrid, Rows3 } from "lucide-react"
+import { Images, LayoutGrid, Rows3 } from "lucide-react"
 
 import type { ViewMode } from "@/lib/constants"
 import { Toggle } from "@workspace/ui/components/toggle"
@@ -47,6 +47,23 @@ export function ViewToggle({
           <Rows3 className="size-4" />
         </TooltipTrigger>
         <TooltipContent>List view</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Toggle
+              pressed={viewMode === "media"}
+              onPressedChange={() => onViewModeChange("media")}
+              size="sm"
+              aria-label="Moodboard view"
+              className="rounded-lg"
+            />
+          }
+        >
+          <Images className="size-4" />
+        </TooltipTrigger>
+        <TooltipContent>Moodboard</TooltipContent>
       </Tooltip>
     </div>
   )

@@ -18,6 +18,10 @@ export function AppShell({ viewer }: { viewer: AppViewer }) {
   const [activeFolderId, setActiveFolderId] = useState<Id<"folders"> | undefined>()
   const [activeBookmarkId, setActiveBookmarkId] =
     useState<Id<"bookmarks"> | null>(null)
+  const [lightboxSignal, setLightboxSignal] = useState<{
+    mediaIndex: number
+    nonce: number
+  } | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const { viewMode, sortField, sortDirection, updatePrefs } = useViewPrefs()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
@@ -64,9 +68,17 @@ export function AppShell({ viewer }: { viewer: AppViewer }) {
     })
   }
 
-  const handleBookmarkSelect = (bookmarkId: Id<"bookmarks"> | null) => {
+  const handleBookmarkSelect = (
+    bookmarkId: Id<"bookmarks"> | null,
+    mediaIndex?: number,
+  ) => {
     startTransition(() => {
       setActiveBookmarkId(bookmarkId)
+      if (bookmarkId == null) {
+        setLightboxSignal(null)
+      } else if (mediaIndex != null) {
+        setLightboxSignal({ mediaIndex, nonce: Date.now() })
+      }
     })
   }
 
@@ -112,6 +124,7 @@ export function AppShell({ viewer }: { viewer: AppViewer }) {
                 {activeBookmarkId ? (
                   <BookmarkDetail
                     bookmarkId={activeBookmarkId}
+                    lightboxSignal={lightboxSignal}
                     onClose={() => handleBookmarkSelect(null)}
                   />
                 ) : null}

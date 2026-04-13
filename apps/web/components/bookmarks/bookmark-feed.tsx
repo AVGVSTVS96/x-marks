@@ -6,6 +6,7 @@ import type { SortDirection, SortField, ViewMode } from "@/lib/constants"
 import { useBookmarkSearch, useBookmarks } from "@/hooks/use-bookmarks"
 import { BookmarkCard } from "./bookmark-card"
 import { BookmarkGrid } from "./bookmark-grid"
+import { MediaMoodboard } from "./media-moodboard"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { compareBookmarks } from "@convex/lib/compareBookmarks"
 import type { Id } from "@convex/_generated/dataModel"
@@ -16,7 +17,10 @@ interface BookmarkFeedProps {
   viewMode: ViewMode
   sortField: SortField
   sortDirection: SortDirection
-  onBookmarkSelect: (bookmarkId: Id<"bookmarks"> | null) => void
+  onBookmarkSelect: (
+    bookmarkId: Id<"bookmarks"> | null,
+    mediaIndex?: number,
+  ) => void
   activeBookmarkId: Id<"bookmarks"> | null
 }
 
@@ -87,6 +91,16 @@ export function BookmarkFeed({
           </p>
         </div>
       </div>
+    )
+  }
+
+  if (viewMode === "media") {
+    return (
+      <MediaMoodboard
+        bookmarks={displayedBookmarks}
+        activeBookmarkId={activeBookmarkId}
+        onBookmarkSelect={onBookmarkSelect}
+      />
     )
   }
 

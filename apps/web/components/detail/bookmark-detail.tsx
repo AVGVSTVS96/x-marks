@@ -18,10 +18,15 @@ import type { Id } from "@convex/_generated/dataModel"
 
 interface BookmarkDetailProps {
   bookmarkId: Id<"bookmarks">
+  lightboxSignal?: { mediaIndex: number; nonce: number } | null
   onClose: () => void
 }
 
-export function BookmarkDetail({ bookmarkId, onClose }: BookmarkDetailProps) {
+export function BookmarkDetail({
+  bookmarkId,
+  lightboxSignal,
+  onClose,
+}: BookmarkDetailProps) {
   const bookmark = useBookmarkDetail(bookmarkId)
 
   return (
@@ -67,6 +72,7 @@ export function BookmarkDetail({ bookmarkId, onClose }: BookmarkDetailProps) {
                 media={bookmark.media}
                 variant="list"
                 context="detail"
+                lightboxSignal={lightboxSignal}
               />
             )}
 

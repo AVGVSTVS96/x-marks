@@ -23,6 +23,7 @@ interface BookmarkMediaProps {
   media: MediaItem[]
   variant?: ViewMode
   context: "card" | "detail"
+  lightboxSignal?: { mediaIndex: number; nonce: number } | null
 }
 
 function formatDuration(ms: number) {
@@ -43,11 +44,12 @@ export function BookmarkMedia({
   media,
   variant = "grid",
   context,
+  lightboxSignal,
 }: BookmarkMediaProps) {
   if (media.length === 0) return null
 
   if (context === "detail") {
-    return <DetailGallery media={media} />
+    return <DetailGallery media={media} lightboxSignal={lightboxSignal} />
   }
 
   const visible = media.slice(0, 2)
@@ -134,26 +136,46 @@ function CardMediaItem({
   )
 }
 
-function DetailGallery({ media }: { media: MediaItem[] }) {
-  const photos = media.filter((item) => item.type === "photo")
+function DetailGallery({
+  media,
+  lightboxSignal,
+}: {
+  media: MediaItem[]
+  lightboxSignal?: { mediaIndex: number; nonce: number } | null
+}) {
+  const lightboxItems = media.filter(
+    (item) => item.type === "photo" || item.type === "animated_gif",
+  )
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const isOpen = lightboxIndex !== null
-  const activePhoto = lightboxIndex !== null ? photos[lightboxIndex] : null
+  const activeItem =
+    lightboxIndex !== null ? lightboxItems[lightboxIndex] : null
+
+  useEffect(() => {
+    if (!lightboxSignal) return
+    const target = media[lightboxSignal.mediaIndex]
+    if (!target) return
+    const idx = lightboxItems.indexOf(target)
+    if (idx >= 0) setLightboxIndex(idx)
+    // Only react to nonce changes; media/lightboxItems are derived from the
+    // same bookmark and shouldn't re-trigger the lightbox on their own.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxSignal?.nonce])
 
   const close = useCallback(() => setLightboxIndex(null), [])
   const next = useCallback(
     () =>
       setLightboxIndex((i) =>
-        i === null ? null : (i + 1) % photos.length,
+        i === null ? null : (i + 1) % lightboxItems.length,
       ),
-    [photos.length],
+    [lightboxItems.length],
   )
   const prev = useCallback(
     () =>
       setLightboxIndex((i) =>
-        i === null ? null : (i - 1 + photos.length) % photos.length,
+        i === null ? null : (i - 1 + lightboxItems.length) % lightboxItems.length,
       ),
-    [photos.length],
+    [lightboxItems.length],
   )
 
   useEffect(() => {
@@ -170,23 +192,40 @@ function DetailGallery({ media }: { media: MediaItem[] }) {
     <>
       <div className="flex flex-col gap-2">
         {media.map((item, index) => {
-          if (item.type === "photo") {
-            const photoIndex = photos.indexOf(item)
+          if (item.type === "photo" || item.type === "animated_gif") {
+            const itemIndex = lightboxItems.indexOf(item)
             return (
               <button
                 key={index}
                 type="button"
-                onClick={() => setLightboxIndex(photoIndex)}
+                onClick={() => setLightboxIndex(itemIndex)}
                 className="group relative block w-full overflow-hidden rounded-lg border border-border bg-muted"
               >
-                <Image
-                  src={item.url}
-                  alt={item.altText ?? ""}
-                  width={item.width ?? 1200}
-                  height={item.height ?? 800}
-                  className="h-auto w-full object-contain transition-opacity group-hover:opacity-90"
-                  sizes="(min-width: 1024px) 40vw, 100vw"
-                />
+                {item.type === "animated_gif" ? (
+                  <video
+                    src={pickPlayableUrl(item)}
+                    poster={item.previewUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="h-auto w-full object-contain transition-opacity group-hover:opacity-90"
+                  />
+                ) : (
+                  <Image
+                    src={item.url}
+                    alt={item.altText ?? ""}
+                    width={item.width ?? 1200}
+                    height={item.height ?? 800}
+                    className="h-auto w-full object-contain transition-opacity group-hover:opacity-90"
+                    sizes="(min-width: 1024px) 40vw, 100vw"
+                  />
+                )}
+                {item.type === "animated_gif" && (
+                  <span className="absolute bottom-1.5 right-1.5 rounded border border-border bg-background/80 px-1.5 py-0.5 font-heading text-[10px] leading-none text-foreground backdrop-blur-sm">
+                    GIF
+                  </span>
+                )}
               </button>
             )
           }
@@ -195,7 +234,7 @@ function DetailGallery({ media }: { media: MediaItem[] }) {
       </div>
 
       <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
-        {activePhoto && (
+        {activeItem && (
           <DialogContent
             showCloseButton={false}
             className="grid size-full max-h-svh max-w-[100vw] place-items-center gap-0 border-none bg-transparent p-0 shadow-none ring-0 sm:max-w-[100vw]"
@@ -204,15 +243,28 @@ function DetailGallery({ media }: { media: MediaItem[] }) {
               className="relative flex size-full items-center justify-center"
               onClick={close}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={activePhoto.url}
-                alt={activePhoto.altText ?? ""}
-                width={activePhoto.width}
-                height={activePhoto.height}
-                onClick={(e) => e.stopPropagation()}
-                className="h-auto max-h-[90vh] w-auto min-w-[min(750px,92vw)] max-w-[92vw] rounded-lg"
-              />
+              {activeItem.type === "animated_gif" ? (
+                <video
+                  src={pickPlayableUrl(activeItem)}
+                  poster={activeItem.previewUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-auto max-h-[90vh] w-auto min-w-[min(750px,92vw)] max-w-[92vw] rounded-lg"
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={activeItem.url}
+                  alt={activeItem.altText ?? ""}
+                  width={activeItem.width}
+                  height={activeItem.height}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-auto max-h-[90vh] w-auto min-w-[min(750px,92vw)] max-w-[92vw] rounded-lg"
+                />
+              )}
 
               <button
                 type="button"
@@ -226,7 +278,7 @@ function DetailGallery({ media }: { media: MediaItem[] }) {
                 <X className="size-4" />
               </button>
 
-              {photos.length > 1 && (
+              {lightboxItems.length > 1 && (
                 <>
                   <button
                     type="button"
@@ -235,7 +287,7 @@ function DetailGallery({ media }: { media: MediaItem[] }) {
                       prev()
                     }}
                     className="absolute left-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground backdrop-blur-sm transition hover:bg-background"
-                    aria-label="Previous photo"
+                    aria-label="Previous"
                   >
                     <ChevronLeft className="size-5" />
                   </button>
@@ -246,12 +298,12 @@ function DetailGallery({ media }: { media: MediaItem[] }) {
                       next()
                     }}
                     className="absolute right-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground backdrop-blur-sm transition hover:bg-background"
-                    aria-label="Next photo"
+                    aria-label="Next"
                   >
                     <ChevronRight className="size-5" />
                   </button>
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded border border-border bg-background/80 px-2 py-1 font-heading text-[10px] uppercase tracking-wider text-foreground backdrop-blur-sm">
-                    {(lightboxIndex ?? 0) + 1} / {photos.length}
+                    {(lightboxIndex ?? 0) + 1} / {lightboxItems.length}
                   </div>
                 </>
               )}
