@@ -32,21 +32,31 @@ function normalizePrefs(value: Partial<ViewPrefs> | null | undefined): ViewPrefs
   }
 }
 
-function readStoredPrefs() {
+let cachedRaw: string | null = null
+let cachedPrefs: ViewPrefs = DEFAULT_VIEW_PREFS
+
+function readStoredPrefs(): ViewPrefs {
   if (typeof window === "undefined") {
     return DEFAULT_VIEW_PREFS
   }
 
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (!stored) {
-      return DEFAULT_VIEW_PREFS
-    }
-
-    return normalizePrefs(JSON.parse(stored) as Partial<ViewPrefs>)
-  } catch {
-    return DEFAULT_VIEW_PREFS
+  const stored = window.localStorage.getItem(STORAGE_KEY)
+  if (stored === cachedRaw) {
+    return cachedPrefs
   }
+
+  cachedRaw = stored
+  if (!stored) {
+    cachedPrefs = DEFAULT_VIEW_PREFS
+    return cachedPrefs
+  }
+
+  try {
+    cachedPrefs = normalizePrefs(JSON.parse(stored) as Partial<ViewPrefs>)
+  } catch {
+    cachedPrefs = DEFAULT_VIEW_PREFS
+  }
+  return cachedPrefs
 }
 
 function notifyListeners() {
