@@ -2,7 +2,8 @@
 
 import { ArrowDown, ArrowUp } from "lucide-react"
 
-import { SORT_OPTIONS, type SortDirection, type SortField } from "@/lib/constants"
+import { useViewPrefs } from "@/hooks/use-view-prefs"
+import { SORT_OPTIONS, type SortField } from "@/lib/constants"
 import { Button } from "@workspace/ui/components/button"
 import { Label } from "@workspace/ui/components/label"
 import {
@@ -13,23 +14,15 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 
-export function SortControl({
-  sortField,
-  sortDirection,
-  onSortFieldChange,
-  onSortDirectionChange,
-}: {
-  sortField: SortField
-  sortDirection: SortDirection
-  onSortFieldChange: (sortField: SortField) => void
-  onSortDirectionChange: (sortDirection: SortDirection) => void
-}) {
+export function SortControl() {
+  const { sortField, sortDirection, updatePrefs } = useViewPrefs()
+
   return (
     <div className="flex items-center gap-1.5">
       <Label variant="eyebrow" className="font-heading">Sort</Label>
       <Select
         value={sortField}
-        onValueChange={(value) => onSortFieldChange(value as SortField)}
+        onValueChange={(value) => updatePrefs({ sortField: value as SortField })}
       >
         <SelectTrigger className="h-7 w-auto gap-1 rounded-lg border-none px-2 text-xs shadow-none">
           <SelectValue />
@@ -52,7 +45,9 @@ export function SortControl({
             : "Switch to descending sort"
         }
         onClick={() =>
-          onSortDirectionChange(sortDirection === "desc" ? "asc" : "desc")
+          updatePrefs({
+            sortDirection: sortDirection === "desc" ? "asc" : "desc",
+          })
         }
       >
         {sortDirection === "desc" ? (

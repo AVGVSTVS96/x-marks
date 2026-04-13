@@ -1,27 +1,103 @@
 "use client"
 
 import Image from "next/image"
+import { cva, type VariantProps } from "@workspace/ui/lib/cva"
 
 import { BookmarkMedia } from "@/components/media/bookmark-media"
+import type { MediaItem } from "@/components/media/media-utils"
 import type { ViewMode } from "@/lib/constants"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
 
-interface TweetPreviewProps {
+const tweetAvatarVariants = cva(
+  "shrink-0 overflow-hidden rounded-lg border border-border bg-muted",
+  {
+    variants: {
+      variant: {
+        list: "relative size-10",
+        grid: "relative size-8",
+        media: "relative size-8",
+      },
+    },
+    defaultVariants: { variant: "grid" },
+  }
+)
+
+const tweetDisplayNameVariants = cva(
+  "truncate font-medium leading-tight",
+  {
+    variants: {
+      variant: {
+        list: "text-[15px]",
+        grid: "text-sm",
+        media: "text-sm",
+      },
+    },
+    defaultVariants: { variant: "grid" },
+  }
+)
+
+const tweetBodyVariants = cva("leading-relaxed", {
+  variants: {
+    variant: {
+      list: "line-clamp-6 text-[15px]",
+      grid: "line-clamp-4 text-sm",
+      media: "line-clamp-4 text-sm",
+    },
+  },
+  defaultVariants: { variant: "grid" },
+})
+
+const tweetSkeletonAvatarVariants = cva("shrink-0", {
+  variants: {
+    variant: {
+      list: "size-10",
+      grid: "size-8",
+      media: "size-8",
+    },
+  },
+  defaultVariants: { variant: "grid" },
+})
+
+const tweetSkeletonNameVariants = cva("", {
+  variants: {
+    variant: {
+      list: "h-[15px] w-32",
+      grid: "h-3.5 w-28",
+      media: "h-3.5 w-28",
+    },
+  },
+  defaultVariants: { variant: "grid" },
+})
+
+const tweetSkeletonLineVariants = cva("", {
+  variants: {
+    variant: {
+      list: "h-[15px]",
+      grid: "h-3.5",
+      media: "h-3.5",
+    },
+  },
+  defaultVariants: { variant: "grid" },
+})
+
+const tweetSkeletonStackVariants = cva("flex flex-col", {
+  variants: {
+    variant: {
+      list: "gap-2",
+      grid: "gap-1.5",
+      media: "gap-1.5",
+    },
+  },
+  defaultVariants: { variant: "grid" },
+})
+
+interface TweetPreviewProps extends VariantProps<typeof tweetAvatarVariants> {
   authorUsername: string
   authorDisplayName: string
   authorAvatarUrl: string
   text: string
-  media: Array<{
-    type: string
-    url: string
-    previewUrl?: string
-    altText?: string
-    variants?: Array<{ contentType: string; bitRate?: number; url: string }>
-    durationMs?: number
-    width?: number
-    height?: number
-  }>
+  media?: MediaItem[]
   timeAgo: string
   variant?: ViewMode
 }
@@ -39,12 +115,7 @@ export function TweetPreview({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         {authorAvatarUrl ? (
-          <div
-            className={cn(
-              "relative overflow-hidden rounded-lg border border-border bg-muted",
-              variant === "list" ? "size-10" : "size-8"
-            )}
-          >
+          <div className={tweetAvatarVariants({ variant })}>
             <Image
               src={authorAvatarUrl}
               alt=""
@@ -54,21 +125,11 @@ export function TweetPreview({
             />
           </div>
         ) : (
-          <div
-            className={cn(
-              "rounded-lg border border-border bg-muted",
-              variant === "list" ? "size-10" : "size-8"
-            )}
-          />
+          <div className={tweetAvatarVariants({ variant })} />
         )}
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex min-w-0 items-baseline gap-2">
-            <span
-              className={cn(
-                "truncate font-medium leading-tight",
-                variant === "list" ? "text-[15px]" : "text-sm"
-              )}
-            >
+            <span className={tweetDisplayNameVariants({ variant })}>
               {authorDisplayName}
             </span>
             <span className="-translate-y-[6px] ml-auto shrink-0 font-heading text-[10px] text-muted-foreground">
@@ -81,16 +142,9 @@ export function TweetPreview({
         </div>
       </div>
 
-      <p
-        className={cn(
-          "leading-relaxed",
-          variant === "list" ? "line-clamp-6 text-[15px]" : "line-clamp-4 text-sm"
-        )}
-      >
-        {text}
-      </p>
+      <p className={tweetBodyVariants({ variant })}>{text}</p>
 
-      {media.length > 0 && (
+      {media && media.length > 0 && (
         <BookmarkMedia media={media} variant={variant} context="card" />
       )}
     </div>
@@ -109,15 +163,13 @@ export function TweetPreviewSkeleton({
       <div className="flex items-center gap-2">
         <Skeleton
           radius="lg"
-          className={cn("shrink-0", variant === "list" ? "size-10" : "size-8")}
+          className={tweetSkeletonAvatarVariants({ variant })}
         />
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
             <Skeleton
               radius="lg"
-              className={
-                variant === "list" ? "h-[15px] w-32" : "h-3.5 w-28"
-              }
+              className={tweetSkeletonNameVariants({ variant })}
             />
             <Skeleton radius="lg" className="h-2.5 w-8" />
           </div>
@@ -125,19 +177,14 @@ export function TweetPreviewSkeleton({
         </div>
       </div>
 
-      <div
-        className={cn(
-          "flex flex-col",
-          variant === "list" ? "gap-2" : "gap-1.5",
-        )}
-      >
+      <div className={tweetSkeletonStackVariants({ variant })}>
         {Array.from({ length: lineCount }).map((_, index) => (
           <Skeleton
             key={index}
             radius="lg"
             className={cn(
-              variant === "list" ? "h-[15px]" : "h-3.5",
-              lineWidths[index % lineWidths.length],
+              tweetSkeletonLineVariants({ variant }),
+              lineWidths[index % lineWidths.length]
             )}
           />
         ))}

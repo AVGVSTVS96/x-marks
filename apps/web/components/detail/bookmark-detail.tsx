@@ -53,7 +53,6 @@ export function BookmarkDetail({
             authorDisplayName={display.authorDisplayName}
             authorAvatarUrl={display.authorAvatarUrl}
             text={display.text}
-            media={[]}
             timeAgo={formatDate(display.createdAt)}
             variant="list"
           />

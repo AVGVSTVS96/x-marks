@@ -2,13 +2,35 @@
 
 import Image from "next/image"
 import { Play } from "lucide-react"
+import { cva, type VariantProps } from "@workspace/ui/lib/cva"
 
 import type { ViewMode } from "@/lib/constants"
-import { cn } from "@workspace/ui/lib/utils"
 import { MediaBadge } from "./media-badge"
 import { formatDuration, pickPlayableUrl, type MediaItem } from "./media-utils"
 
-interface MediaStripProps {
+const mediaTileVariants = cva(
+  "relative overflow-hidden rounded-lg border border-border bg-muted",
+  {
+    variants: {
+      viewMode: {
+        list: "h-40 lg:h-52",
+        grid: "h-28 sm:h-32 xl:h-36",
+        media: "h-28 sm:h-32 xl:h-36",
+      },
+      role: {
+        item: "flex-1",
+        overflow:
+          "flex w-14 items-center justify-center font-heading text-xs text-muted-foreground",
+      },
+    },
+    defaultVariants: {
+      viewMode: "grid",
+      role: "item",
+    },
+  }
+)
+
+interface MediaStripProps extends VariantProps<typeof mediaTileVariants> {
   media: MediaItem[]
   variant?: ViewMode
 }
@@ -22,15 +44,10 @@ export function MediaStrip({ media, variant = "grid" }: MediaStripProps) {
   return (
     <div className="flex gap-1 overflow-hidden">
       {visible.map((item, index) => (
-        <MediaStripItem key={index} item={item} variant={variant} />
+        <MediaStripItem key={index} item={item} viewMode={variant} />
       ))}
       {overflow > 0 && (
-        <div
-          className={cn(
-            "flex w-14 items-center justify-center rounded-lg border border-border bg-muted font-heading text-xs text-muted-foreground",
-            variant === "list" ? "h-40 lg:h-52" : "h-28 sm:h-32 xl:h-36"
-          )}
-        >
+        <div className={mediaTileVariants({ viewMode: variant, role: "overflow" })}>
           +{overflow}
         </div>
       )}
@@ -40,22 +57,17 @@ export function MediaStrip({ media, variant = "grid" }: MediaStripProps) {
 
 function MediaStripItem({
   item,
-  variant,
+  viewMode,
 }: {
   item: MediaItem
-  variant: ViewMode
+  viewMode: ViewMode
 }) {
   const isVideo = item.type === "video"
   const isGif = item.type === "animated_gif"
   const poster = item.previewUrl ?? (isVideo || isGif ? "" : item.url)
 
   return (
-    <div
-      className={cn(
-        "relative flex-1 overflow-hidden rounded-lg border border-border bg-muted",
-        variant === "list" ? "h-40 lg:h-52" : "h-28 sm:h-32 xl:h-36"
-      )}
-    >
+    <div className={mediaTileVariants({ viewMode, role: "item" })}>
       {isGif ? (
         <video
           src={pickPlayableUrl(item)}
@@ -71,7 +83,7 @@ function MediaStripItem({
           src={poster}
           alt={item.altText ?? ""}
           fill
-          sizes={variant === "list" ? "50vw" : "33vw"}
+          sizes={viewMode === "list" ? "50vw" : "33vw"}
           className="object-cover"
         />
       ) : null}

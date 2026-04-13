@@ -1,21 +1,55 @@
 "use client"
 
 import { Folder, NotebookText } from "lucide-react"
+import { cva, type VariantProps } from "@workspace/ui/lib/cva"
 
 import type { ViewMode } from "@/lib/constants"
 import { TweetPreview, TweetPreviewSkeleton } from "./tweet-preview"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { cn } from "@workspace/ui/lib/utils"
 import type { Doc } from "@convex/_generated/dataModel"
 
-const cardLayoutClasses = (viewMode: ViewMode) =>
-  cn(
-    "flex rounded-2xl border border-border text-left transition-colors",
-    viewMode === "list" ? "flex-col gap-4 p-4 lg:p-5" : "flex-col gap-3 p-3"
-  )
+const bookmarkCardVariants = cva(
+  "flex flex-col rounded-2xl border border-border text-left transition-colors",
+  {
+    variants: {
+      viewMode: {
+        list: "gap-4 p-4 lg:p-5",
+        grid: "gap-3 p-3",
+        media: "gap-3 p-3",
+      },
+      interactive: {
+        true: "hover:bg-muted/50",
+        false: "",
+      },
+      active: {
+        true: "border-foreground bg-muted/50",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      viewMode: "grid",
+      interactive: false,
+      active: false,
+    },
+  }
+)
 
-interface BookmarkCardProps {
+const bookmarkCardMetaVariants = cva(
+  "flex items-center gap-3 font-heading uppercase tracking-wider text-muted-foreground",
+  {
+    variants: {
+      viewMode: {
+        list: "text-[11px]",
+        grid: "text-[10px]",
+        media: "text-[10px]",
+      },
+    },
+    defaultVariants: { viewMode: "grid" },
+  }
+)
+
+interface BookmarkCardProps extends VariantProps<typeof bookmarkCardVariants> {
   bookmark: Doc<"bookmarks"> & {
     tags: Doc<"tags">[]
     folders: Doc<"folders">[]
@@ -38,11 +72,11 @@ export function BookmarkCard({
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        cardLayoutClasses(viewMode),
-        "hover:bg-muted/50",
-        isActive && "border-foreground bg-muted/50"
-      )}
+      className={bookmarkCardVariants({
+        viewMode,
+        interactive: true,
+        active: isActive,
+      })}
     >
       <TweetPreview
         authorUsername={bookmark.authorUsername}
@@ -54,12 +88,7 @@ export function BookmarkCard({
         variant={viewMode}
       />
 
-      <div
-        className={cn(
-          "flex items-center gap-3 font-heading tracking-wider text-muted-foreground uppercase",
-          viewMode === "list" ? "text-[11px]" : "text-[10px]"
-        )}
-      >
+      <div className={bookmarkCardMetaVariants({ viewMode })}>
         <span>{formatCount(bookmark.metrics.likes)} likes</span>
         <span>{formatCount(bookmark.metrics.retweets)} rt</span>
         <span>{formatCount(bookmark.metrics.replies)} replies</span>
@@ -101,7 +130,7 @@ export function BookmarkCard({
 
 export function BookmarkCardSkeleton({ viewMode }: { viewMode: ViewMode }) {
   return (
-    <div className={cardLayoutClasses(viewMode)}>
+    <div className={bookmarkCardVariants({ viewMode })}>
       <TweetPreviewSkeleton variant={viewMode} />
 
       <div className="flex items-center gap-3">
