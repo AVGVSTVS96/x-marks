@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 
+import { BookmarkMedia } from "@/components/bookmarks/bookmark-media"
 import type { ViewMode } from "@/lib/constants"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -15,6 +16,10 @@ interface TweetPreviewProps {
     url: string
     previewUrl?: string
     altText?: string
+    variants?: Array<{ contentType: string; bitRate?: number; url: string }>
+    durationMs?: number
+    width?: number
+    height?: number
   }>
   timeAgo: string
   variant?: ViewMode
@@ -83,35 +88,7 @@ export function TweetPreview({
       </p>
 
       {media.length > 0 && (
-        <div className="flex gap-1 overflow-hidden">
-          {media.slice(0, 2).map((item, index) => (
-            <div
-              key={index}
-              className={cn(
-                "relative flex-1 overflow-hidden rounded-lg border border-border bg-muted",
-                variant === "list" ? "h-40 lg:h-52" : "h-28 sm:h-32 xl:h-36"
-              )}
-            >
-              <Image
-                src={item.previewUrl ?? item.url}
-                alt={item.altText ?? ""}
-                fill
-                sizes={variant === "list" ? "50vw" : "33vw"}
-                className="object-cover"
-              />
-            </div>
-          ))}
-          {media.length > 2 && (
-            <div
-              className={cn(
-                "flex w-14 items-center justify-center rounded-lg border border-border bg-muted font-heading text-xs text-muted-foreground",
-                variant === "list" ? "h-40 lg:h-52" : "h-28 sm:h-32 xl:h-36"
-              )}
-            >
-              +{media.length - 2}
-            </div>
-          )}
-        </div>
+        <BookmarkMedia media={media} variant={variant} context="card" />
       )}
     </div>
   )

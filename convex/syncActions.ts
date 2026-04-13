@@ -63,7 +63,17 @@ export const initialSync = internalAction({
             "attachments",
           ],
           userFields: ["username", "name", "profile_image_url"],
-          mediaFields: ["type", "url", "preview_image_url", "alt_text"],
+          mediaFields: [
+            "type",
+            "url",
+            "preview_image_url",
+            "alt_text",
+            "variants",
+            "duration_ms",
+            "width",
+            "height",
+            "public_metrics",
+          ],
           paginationToken,
         }
 

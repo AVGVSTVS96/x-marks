@@ -58,6 +58,18 @@ export const upsertBookmarks = internalMutation({
             url: v.string(),
             previewUrl: v.optional(v.string()),
             altText: v.optional(v.string()),
+            variants: v.optional(
+              v.array(
+                v.object({
+                  contentType: v.string(),
+                  bitRate: v.optional(v.number()),
+                  url: v.string(),
+                }),
+              ),
+            ),
+            durationMs: v.optional(v.number()),
+            width: v.optional(v.number()),
+            height: v.optional(v.number()),
           }),
         ),
         metrics: v.object({

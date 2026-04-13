@@ -6,6 +6,14 @@ export function createXClient(accessToken: string) {
   return new Client({ accessToken })
 }
 
+interface RawVariant {
+  content_type?: string
+  contentType?: string
+  bit_rate?: number
+  bitRate?: number
+  url: string
+}
+
 interface RawMedia {
   media_key?: string
   mediaKey?: string
@@ -15,6 +23,11 @@ interface RawMedia {
   previewImageUrl?: string
   alt_text?: string
   altText?: string
+  variants?: RawVariant[]
+  duration_ms?: number
+  durationMs?: number
+  width?: number
+  height?: number
 }
 
 interface RawUser {
@@ -78,12 +91,34 @@ export function parseBookmarkResponse(
   const media = mediaKeys
     .map((key) => includes.media?.find((m) => (m.mediaKey ?? m.media_key) === key))
     .filter((m): m is RawMedia => m !== undefined)
-    .map((m) => ({
-      type: m.type,
-      url: m.url ?? m.previewImageUrl ?? m.preview_image_url ?? "",
-      previewUrl: m.previewImageUrl ?? m.preview_image_url,
-      altText: m.altText ?? m.alt_text,
-    }))
+    .map((m) => {
+      const rawVariants = m.variants ?? []
+      const variants = rawVariants.map((variant) => ({
+        contentType: variant.contentType ?? variant.content_type ?? "",
+        bitRate: variant.bitRate ?? variant.bit_rate,
+        url: variant.url,
+      }))
+      const mp4Variants = variants
+        .filter((v) => v.contentType === "video/mp4" && v.url)
+        .sort((a, b) => (b.bitRate ?? 0) - (a.bitRate ?? 0))
+      const bestMp4Url = mp4Variants[0]?.url
+      const previewUrl = m.previewImageUrl ?? m.preview_image_url
+      const isPlayable = m.type === "video" || m.type === "animated_gif"
+      const url = isPlayable
+        ? bestMp4Url ?? previewUrl ?? ""
+        : m.url ?? previewUrl ?? ""
+
+      return {
+        type: m.type,
+        url,
+        previewUrl,
+        altText: m.altText ?? m.alt_text,
+        variants: variants.length > 0 ? variants : undefined,
+        durationMs: m.durationMs ?? m.duration_ms,
+        width: m.width,
+        height: m.height,
+      }
+    })
 
   return {
     xTweetId: tweet.id,

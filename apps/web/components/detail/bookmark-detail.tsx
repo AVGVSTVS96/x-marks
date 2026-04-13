@@ -7,6 +7,7 @@ import { BookmarkActions } from "./bookmark-actions"
 import { NoteEditor } from "./note-editor"
 import { sectionLabelClasses } from "./section-label"
 import { TagManager } from "./tag-manager"
+import { BookmarkMedia } from "@/components/bookmarks/bookmark-media"
 import { TweetPreview } from "@/components/bookmarks/tweet-preview"
 import { Button } from "@workspace/ui/components/button"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
@@ -56,10 +57,18 @@ export function BookmarkDetail({ bookmarkId, onClose }: BookmarkDetailProps) {
               authorDisplayName={bookmark.authorDisplayName}
               authorAvatarUrl={bookmark.authorAvatarUrl}
               text={bookmark.text}
-              media={bookmark.media}
+              media={[]}
               timeAgo={formatDate(bookmark.createdAt)}
               variant="list"
             />
+
+            {bookmark.media.length > 0 && (
+              <BookmarkMedia
+                media={bookmark.media}
+                variant="list"
+                context="detail"
+              />
+            )}
 
             <div className="flex gap-4 font-heading text-xs uppercase tracking-wider text-muted-foreground">
               <span>{bookmark.metrics.likes} likes</span>

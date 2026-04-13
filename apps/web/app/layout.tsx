@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { ClerkProvider } from "@clerk/nextjs"
 
 import "@workspace/ui/globals.css"
@@ -8,6 +9,10 @@ const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 if (!publishableKey) {
   throw new Error("Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+}
+
+export const metadata: Metadata = {
+  referrer: "no-referrer",
 }
 
 export default function RootLayout({
