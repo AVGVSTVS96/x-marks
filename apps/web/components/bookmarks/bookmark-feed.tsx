@@ -1,15 +1,19 @@
 "use client"
 
-import { useDeferredValue } from "react"
+import { useDeferredValue, useRef } from "react"
+import { usePreloadedQuery, type Preloaded } from "convex/react"
 
-import type { SortDirection, SortField, ViewMode } from "@/lib/constants"
+import { DEFAULT_VIEW_PREFS, type SortDirection, type SortField, type ViewMode } from "@/lib/constants"
 import { useBookmarkSearch, useBookmarks } from "@/hooks/use-bookmarks"
 import { BookmarkCard } from "./bookmark-card"
 import { BookmarkGrid } from "./bookmark-grid"
 import { MediaMoodboard } from "./media-moodboard"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { compareBookmarks } from "@convex/lib/compareBookmarks"
+import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
+
+type BookmarkList = NonNullable<ReturnType<typeof useBookmarks>>
 
 interface BookmarkFeedProps {
   folderId?: Id<"folders">
@@ -22,6 +26,7 @@ interface BookmarkFeedProps {
     mediaIndex?: number,
   ) => void
   activeBookmarkId: Id<"bookmarks"> | null
+  preloadedBookmarks: Preloaded<typeof api.bookmarks.list>
 }
 
 export function BookmarkFeed({
@@ -32,23 +37,38 @@ export function BookmarkFeed({
   sortDirection,
   onBookmarkSelect,
   activeBookmarkId,
+  preloadedBookmarks,
 }: BookmarkFeedProps) {
-  const bookmarks = useBookmarks({
+  const preloadedAllBookmarks = usePreloadedQuery(preloadedBookmarks)
+  const matchesPreloaded =
+    folderId === undefined &&
+    sortField === DEFAULT_VIEW_PREFS.sortField &&
+    sortDirection === DEFAULT_VIEW_PREFS.sortDirection
+  const dynamicBookmarks = useBookmarks({
     folderId,
     sortBy: sortField,
     sortDir: sortDirection,
   })
+  const bookmarks = matchesPreloaded ? preloadedAllBookmarks : dynamicBookmarks
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const searchResults = useBookmarkSearch(deferredSearchQuery)
 
   const isSearching = deferredSearchQuery.trim().length > 0
-  const displayedBookmarks = isSearching
+  const nextDisplayedBookmarks = isSearching
     ? searchResults
         ?.slice()
         .sort((left, right) =>
           compareBookmarks(left, right, sortField, sortDirection)
         )
     : bookmarks
+
+  const previousBookmarksRef = useRef<BookmarkList>(preloadedAllBookmarks)
+  if (nextDisplayedBookmarks !== undefined) {
+    previousBookmarksRef.current = nextDisplayedBookmarks
+  }
+  const displayedBookmarks = nextDisplayedBookmarks ?? previousBookmarksRef.current
+  const isRevalidating =
+    nextDisplayedBookmarks === undefined && displayedBookmarks !== undefined
 
   if (displayedBookmarks === undefined) {
     return (
@@ -96,16 +116,24 @@ export function BookmarkFeed({
 
   if (viewMode === "media") {
     return (
-      <MediaMoodboard
-        bookmarks={displayedBookmarks}
-        activeBookmarkId={activeBookmarkId}
-        onBookmarkSelect={onBookmarkSelect}
-      />
+      <div
+        data-revalidating={isRevalidating || undefined}
+        className="flex min-w-0 flex-1 overflow-auto transition-opacity duration-150 data-[revalidating]:opacity-60"
+      >
+        <MediaMoodboard
+          bookmarks={displayedBookmarks}
+          activeBookmarkId={activeBookmarkId}
+          onBookmarkSelect={onBookmarkSelect}
+        />
+      </div>
     )
   }
 
   return (
-    <div className="flex min-w-0 flex-1 overflow-auto">
+    <div
+      data-revalidating={isRevalidating || undefined}
+      className="flex min-w-0 flex-1 overflow-auto transition-opacity duration-150 data-[revalidating]:opacity-60"
+    >
       <BookmarkGrid viewMode={viewMode} className="border-t border-border px-4 py-5">
         {displayedBookmarks.map((bookmark) => (
           <BookmarkCard

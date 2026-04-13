@@ -1,36 +1,29 @@
 "use client"
 
 import { FolderKanban, LayoutGrid } from "lucide-react"
+import { usePreloadedQuery, type Preloaded } from "convex/react"
 
-import { useBookmarks } from "@/hooks/use-bookmarks"
-import { useFolders } from "@/hooks/use-folders"
 import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
 } from "@workspace/ui/components/sidebar"
+import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
 
 export function FolderTree({
   activeFolderId,
   onFolderSelect,
+  preloadedFolders,
+  preloadedBookmarks,
 }: {
   activeFolderId?: Id<"folders">
   onFolderSelect: (folderId: Id<"folders"> | undefined) => void
+  preloadedFolders: Preloaded<typeof api.folders.list>
+  preloadedBookmarks: Preloaded<typeof api.bookmarks.list>
 }) {
-  const folders = useFolders()
-  const allBookmarks = useBookmarks()
-
-  if (folders === undefined) {
-    return (
-      <>
-        <SidebarMenuSkeleton showIcon />
-        <SidebarMenuSkeleton showIcon />
-        <SidebarMenuSkeleton showIcon />
-      </>
-    )
-  }
+  const folders = usePreloadedQuery(preloadedFolders)
+  const allBookmarks = usePreloadedQuery(preloadedBookmarks)
 
   return (
     <>
@@ -43,7 +36,7 @@ export function FolderTree({
           <LayoutGrid className="size-4" />
           <span>All</span>
         </SidebarMenuButton>
-        <SidebarMenuBadge>{allBookmarks?.length ?? 0}</SidebarMenuBadge>
+        <SidebarMenuBadge>{allBookmarks.length}</SidebarMenuBadge>
       </SidebarMenuItem>
 
       {folders.map((folder) => (
