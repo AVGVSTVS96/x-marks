@@ -10,13 +10,11 @@ export function useBookmarks(filters?: {
   folderId?: Id<"folders">
   sortBy?: SortField
   sortDir?: SortDirection
-  limit?: number
 }) {
   return useQuery(api.bookmarks.list, {
     folderId: filters?.folderId,
     sortBy: filters?.sortBy,
     sortDir: filters?.sortDir,
-    limit: filters?.limit,
   })
 }
 

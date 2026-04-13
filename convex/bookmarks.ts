@@ -75,12 +75,10 @@ export const list = query({
       v.union(v.literal("bookmarkedAt"), v.literal("createdAt")),
     ),
     sortDir: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
-    limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUser(ctx)
     if (!user) return []
-    const limit = args.limit ?? 50
     const sortBy = args.sortBy ?? "bookmarkedAt"
     const sortDir = args.sortDir ?? "desc"
 
@@ -101,16 +99,13 @@ export const list = query({
       bookmarks = loaded
         .filter((b): b is NonNullable<typeof b> => b !== null)
         .sort((a, b) => compareBookmarks(a, b, sortBy, sortDir))
-        .slice(0, limit)
     } else {
       const all = await ctx.db
         .query("bookmarks")
         .withIndex("by_userId_bookmarkedAt", (q) => q.eq("userId", user._id))
         .collect()
 
-      bookmarks = all
-        .sort((a, b) => compareBookmarks(a, b, sortBy, sortDir))
-        .slice(0, limit)
+      bookmarks = all.sort((a, b) => compareBookmarks(a, b, sortBy, sortDir))
     }
 
     return enrichBookmarks(ctx, user._id, bookmarks)
@@ -174,7 +169,7 @@ export const search = query({
     const bookmarks = await ctx.db
       .query("bookmarks")
       .withSearchIndex("search_text", (q) => q.search("text", args.query).eq("userId", user._id))
-      .take(50)
+      .take(1024)
 
     return enrichBookmarks(ctx, user._id, bookmarks)
   },
