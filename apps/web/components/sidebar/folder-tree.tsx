@@ -1,6 +1,8 @@
 "use client"
 
 import { FolderKanban, LayoutGrid } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { usePreloadedQuery, type Preloaded } from "convex/react"
 
 import {
@@ -9,29 +11,27 @@ import {
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
 import { api } from "@convex/_generated/api"
-import type { Id } from "@convex/_generated/dataModel"
 
 export function FolderTree({
-  activeFolderId,
-  onFolderSelect,
   preloadedFolders,
-  preloadedBookmarks,
+  preloadedAllBookmarks,
 }: {
-  activeFolderId?: Id<"folders">
-  onFolderSelect: (folderId: Id<"folders"> | undefined) => void
   preloadedFolders: Preloaded<typeof api.folders.list>
-  preloadedBookmarks: Preloaded<typeof api.bookmarks.list>
+  preloadedAllBookmarks: Preloaded<typeof api.bookmarks.list>
 }) {
   const folders = usePreloadedQuery(preloadedFolders)
-  const allBookmarks = usePreloadedQuery(preloadedBookmarks)
+  const allBookmarks = usePreloadedQuery(preloadedAllBookmarks)
+  const pathname = usePathname()
+
+  const isAllActive = pathname === "/app"
 
   return (
     <>
       <SidebarMenuItem>
         <SidebarMenuButton
-          isActive={activeFolderId === undefined}
-          onClick={() => onFolderSelect(undefined)}
+          isActive={isAllActive}
           tooltip="All Bookmarks"
+          render={<Link href="/app" prefetch />}
         >
           <LayoutGrid className="size-4" />
           <span>All</span>
@@ -39,22 +39,26 @@ export function FolderTree({
         <SidebarMenuBadge>{allBookmarks.length}</SidebarMenuBadge>
       </SidebarMenuItem>
 
-      {folders.map((folder) => (
-        <SidebarMenuItem key={folder._id}>
-          <SidebarMenuButton
-            isActive={activeFolderId === folder._id}
-            onClick={() => onFolderSelect(folder._id)}
-            tooltip={folder.name}
-          >
-            <FolderKanban
-              className="size-4"
-              style={folder.color ? { color: folder.color } : undefined}
-            />
-            <span>{folder.name}</span>
-          </SidebarMenuButton>
-          <SidebarMenuBadge>{folder.bookmarkCount}</SidebarMenuBadge>
-        </SidebarMenuItem>
-      ))}
+      {folders.map((folder) => {
+        const href = `/app/f/${folder._id}`
+        const isActive = pathname === href
+        return (
+          <SidebarMenuItem key={folder._id}>
+            <SidebarMenuButton
+              isActive={isActive}
+              tooltip={folder.name}
+              render={<Link href={href} prefetch />}
+            >
+              <FolderKanban
+                className="size-4"
+                style={folder.color ? { color: folder.color } : undefined}
+              />
+              <span>{folder.name}</span>
+            </SidebarMenuButton>
+            <SidebarMenuBadge>{folder.bookmarkCount}</SidebarMenuBadge>
+          </SidebarMenuItem>
+        )
+      })}
     </>
   )
 }

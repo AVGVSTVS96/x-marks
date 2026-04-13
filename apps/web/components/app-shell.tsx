@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { Preloaded } from "convex/react"
 
+import {
+  AppStateProvider,
+  type AppState,
+  type BookmarkListItem,
+} from "@/components/app-state-context"
 import { BookmarkDetail } from "@/components/detail/bookmark-detail"
-import { BookmarkFeed } from "@/components/bookmarks/bookmark-feed"
-import { BookmarkWarmer } from "@/components/bookmarks/bookmark-warmer"
 import { ConvexProvider } from "@/components/providers/convex-provider"
 import { SidebarPanel } from "@/components/sidebar/sidebar-panel"
 import { Toolbar } from "@/components/toolbar/toolbar"
@@ -15,33 +18,30 @@ import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import { useMediaQuery } from "@workspace/ui/hooks/use-media-query"
 import { api } from "@convex/_generated/api"
-import type { Id } from "@convex/_generated/dataModel"
 
 interface AppShellProps {
   viewer: AppViewer
   preloadedFolders: Preloaded<typeof api.folders.list>
-  preloadedBookmarks: Preloaded<typeof api.bookmarks.list>
+  preloadedAllBookmarks: Preloaded<typeof api.bookmarks.list>
+  children: React.ReactNode
 }
 
 export function AppShell({
   viewer,
   preloadedFolders,
-  preloadedBookmarks,
+  preloadedAllBookmarks,
+  children,
 }: AppShellProps) {
-  const [activeFolderId, setActiveFolderId] = useState<Id<"folders"> | undefined>()
-  const [activeBookmarkId, setActiveBookmarkId] =
-    useState<Id<"bookmarks"> | null>(null)
+  const [activeBookmark, setActiveBookmark] = useState<BookmarkListItem | null>(
+    null,
+  )
   const [lightboxSignal, setLightboxSignal] = useState<{
     mediaIndex: number
     nonce: number
   } | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [warmFolderIds, setWarmFolderIds] = useState<Array<Id<"folders">>>([])
   const { viewMode, sortField, sortDirection, updatePrefs } = useViewPrefs()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const [, startTransition] = useTransition()
-
-  const WARM_FOLDER_LIMIT = 5
 
   useEffect(() => {
     const runSync = async () => {
@@ -77,43 +77,44 @@ export function AppShell({
     }
   }, [])
 
-  const handleFolderSelect = (folderId: Id<"folders"> | undefined) => {
-    startTransition(() => {
-      setActiveFolderId(folderId)
-      setActiveBookmarkId(null)
-      if (folderId) {
-        setWarmFolderIds((prev) => {
-          const deduped = prev.filter((id) => id !== folderId)
-          return [folderId, ...deduped].slice(0, WARM_FOLDER_LIMIT)
-        })
-      }
-    })
-  }
-
-  const handleBookmarkSelect = (
-    bookmarkId: Id<"bookmarks"> | null,
-    mediaIndex?: number,
-  ) => {
-    startTransition(() => {
-      setActiveBookmarkId(bookmarkId)
-      if (bookmarkId == null) {
+  const handleBookmarkSelect = useCallback(
+    (bookmark: BookmarkListItem | null, mediaIndex?: number) => {
+      setActiveBookmark(bookmark)
+      if (bookmark == null) {
         setLightboxSignal(null)
       } else if (mediaIndex != null) {
         setLightboxSignal({ mediaIndex, nonce: Date.now() })
+      } else {
+        setLightboxSignal(null)
       }
-    })
-  }
+    },
+    [],
+  )
+
+  const handleCloseDetail = useCallback(() => {
+    setActiveBookmark(null)
+    setLightboxSignal(null)
+  }, [])
+
+  const appState = useMemo<AppState>(
+    () => ({
+      searchQuery,
+      activeBookmark,
+      onBookmarkSelect: handleBookmarkSelect,
+    }),
+    [searchQuery, activeBookmark, handleBookmarkSelect],
+  )
+
+  const showFeed = !activeBookmark || isDesktop
 
   return (
     <ConvexProvider>
       <TooltipProvider>
         <SidebarProvider>
           <SidebarPanel
-            activeFolderId={activeFolderId}
-            onFolderSelect={handleFolderSelect}
             viewer={viewer}
             preloadedFolders={preloadedFolders}
-            preloadedBookmarks={preloadedBookmarks}
+            preloadedAllBookmarks={preloadedAllBookmarks}
           />
           <SidebarInset className="min-w-0">
             <div className="flex h-svh min-w-0 flex-col">
@@ -134,33 +135,22 @@ export function AppShell({
                 }
               />
               <div className="flex min-w-0 flex-1 overflow-hidden">
-                {(!activeBookmarkId || isDesktop) && (
-                  <BookmarkFeed
-                    folderId={activeFolderId}
-                    searchQuery={searchQuery}
-                    viewMode={viewMode}
-                    sortField={sortField}
-                    sortDirection={sortDirection}
-                    onBookmarkSelect={handleBookmarkSelect}
-                    activeBookmarkId={activeBookmarkId}
-                    preloadedBookmarks={preloadedBookmarks}
-                  />
-                )}
-                {activeBookmarkId ? (
+                <AppStateProvider value={appState}>
+                  <div className={showFeed ? "flex min-w-0 flex-1" : "hidden"}>
+                    {children}
+                  </div>
+                </AppStateProvider>
+                {activeBookmark ? (
                   <BookmarkDetail
-                    bookmarkId={activeBookmarkId}
+                    key={activeBookmark._id}
+                    initialBookmark={activeBookmark}
                     lightboxSignal={lightboxSignal}
-                    onClose={() => handleBookmarkSelect(null)}
+                    onClose={handleCloseDetail}
                   />
                 ) : null}
               </div>
             </div>
           </SidebarInset>
-          <BookmarkWarmer
-            folderIds={warmFolderIds}
-            sortField={sortField}
-            sortDirection={sortDirection}
-          />
         </SidebarProvider>
       </TooltipProvider>
     </ConvexProvider>

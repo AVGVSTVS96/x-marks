@@ -6,7 +6,6 @@ import { redirect } from "next/navigation"
 import { api } from "@convex/_generated/api"
 
 import { AppShell } from "@/components/app-shell"
-import { DEFAULT_VIEW_PREFS } from "@/lib/constants"
 import { resolveAppSession } from "@/lib/server/app-session"
 import { buttonVariants } from "@workspace/ui/lib/button-variants"
 import { cn } from "@workspace/ui/lib/utils"
@@ -16,8 +15,6 @@ export default async function AppLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  void children
-
   const { userId, getToken } = await auth()
 
   if (!userId) {
@@ -49,23 +46,18 @@ export default async function AppLayout({
 
   const convexToken = await getToken({ template: "convex" })
 
-  const [preloadedFolders, preloadedBookmarks] = await Promise.all([
+  const [preloadedFolders, preloadedAllBookmarks] = await Promise.all([
     preloadQuery(api.folders.list, {}, { token: convexToken ?? undefined }),
-    preloadQuery(
-      api.bookmarks.list,
-      {
-        sortBy: DEFAULT_VIEW_PREFS.sortField,
-        sortDir: DEFAULT_VIEW_PREFS.sortDirection,
-      },
-      { token: convexToken ?? undefined },
-    ),
+    preloadQuery(api.bookmarks.list, {}, { token: convexToken ?? undefined }),
   ])
 
   return (
     <AppShell
       viewer={appSession.viewer}
       preloadedFolders={preloadedFolders}
-      preloadedBookmarks={preloadedBookmarks}
-    />
+      preloadedAllBookmarks={preloadedAllBookmarks}
+    >
+      {children}
+    </AppShell>
   )
 }

@@ -20,7 +20,7 @@ export function BookmarkGrid({
         "mx-auto grid w-full gap-3",
         viewMode === "list"
           ? "max-w-5xl grid-cols-1"
-          : "max-w-[1560px] grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))]",
+          : "max-w-[1560px] grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3 @6xl:grid-cols-4",
         className,
       )}
     >

@@ -3,27 +3,28 @@
 import Image from "next/image"
 import { Play } from "lucide-react"
 
+import type { BookmarkListItem } from "@/components/app-state-context"
 import { cn } from "@workspace/ui/lib/utils"
 import type { Doc, Id } from "@convex/_generated/dataModel"
 
 type MediaItem = Doc<"bookmarks">["media"][number]
 
 interface MediaMoodboardProps {
-  bookmarks: Doc<"bookmarks">[]
+  bookmarks: BookmarkListItem[]
   activeBookmarkId: Id<"bookmarks"> | null
-  onBookmarkSelect: (bookmarkId: Id<"bookmarks">, mediaIndex: number) => void
+  onBookmarkSelect: (bookmark: BookmarkListItem, mediaIndex: number) => void
 }
 
 interface Tile {
   key: string
-  bookmarkId: Id<"bookmarks">
+  bookmark: BookmarkListItem
   mediaIndex: number
   item: MediaItem
   isActive: boolean
 }
 
 function buildTiles(
-  bookmarks: Doc<"bookmarks">[],
+  bookmarks: BookmarkListItem[],
   activeBookmarkId: Id<"bookmarks"> | null,
 ): Tile[] {
   const tiles: Tile[] = []
@@ -31,7 +32,7 @@ function buildTiles(
     bookmark.media.forEach((item, index) => {
       tiles.push({
         key: `${bookmark._id}:${index}`,
-        bookmarkId: bookmark._id,
+        bookmark,
         mediaIndex: index,
         item,
         isActive: activeBookmarkId === bookmark._id,
@@ -78,18 +79,18 @@ export function MediaMoodboard({
   }
 
   return (
-    <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+    <div className="@container min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
       <div
         className={cn(
           "mx-auto w-full max-w-[1560px] px-4 py-5",
-          "columns-1 gap-3 sm:columns-2 lg:columns-3 xl:columns-4",
+          "columns-1 gap-3 @md:columns-2 @2xl:columns-3 @6xl:columns-4",
         )}
       >
         {tiles.map((tile) => (
           <MoodboardTile
             key={tile.key}
             tile={tile}
-            onClick={() => onBookmarkSelect(tile.bookmarkId, tile.mediaIndex)}
+            onClick={() => onBookmarkSelect(tile.bookmark, tile.mediaIndex)}
           />
         ))}
       </div>

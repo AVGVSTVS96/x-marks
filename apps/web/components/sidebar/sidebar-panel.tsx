@@ -3,7 +3,6 @@
 import type { Preloaded } from "convex/react"
 
 import { api } from "@convex/_generated/api"
-import type { Id } from "@convex/_generated/dataModel"
 
 import type { AppViewer } from "@/lib/app-view-model"
 import { FolderTree } from "./folder-tree"
@@ -24,19 +23,15 @@ import {
 } from "@workspace/ui/components/sidebar"
 
 interface SidebarPanelProps {
-  activeFolderId?: Id<"folders">
-  onFolderSelect: (folderId: Id<"folders"> | undefined) => void
   viewer: AppViewer
   preloadedFolders: Preloaded<typeof api.folders.list>
-  preloadedBookmarks: Preloaded<typeof api.bookmarks.list>
+  preloadedAllBookmarks: Preloaded<typeof api.bookmarks.list>
 }
 
 export function SidebarPanel({
-  activeFolderId,
-  onFolderSelect,
   viewer,
   preloadedFolders,
-  preloadedBookmarks,
+  preloadedAllBookmarks,
 }: SidebarPanelProps) {
   return (
     <Sidebar>
@@ -52,10 +47,8 @@ export function SidebarPanel({
           <SidebarGroupContent>
             <SidebarMenu>
               <FolderTree
-                activeFolderId={activeFolderId}
-                onFolderSelect={onFolderSelect}
                 preloadedFolders={preloadedFolders}
-                preloadedBookmarks={preloadedBookmarks}
+                preloadedAllBookmarks={preloadedAllBookmarks}
               />
             </SidebarMenu>
           </SidebarGroupContent>
