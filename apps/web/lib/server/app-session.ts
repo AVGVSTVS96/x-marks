@@ -190,8 +190,12 @@ export async function triggerAppSync() {
 
     const syncState = await convex.query(api.syncState.getCurrent, {})
     const nextRecommendedSyncAt = syncState?.nextRecommendedSyncAt ?? null
+    const STUCK_SYNC_MS = 10 * 60 * 1000
+    const isStuckSync =
+      syncState?.status === "syncing" &&
+      (syncState.syncStartedAt ?? 0) < Date.now() - STUCK_SYNC_MS
     const shouldStartSync =
-      syncState?.status !== "syncing" &&
+      (syncState?.status !== "syncing" || isStuckSync) &&
       (!nextRecommendedSyncAt || nextRecommendedSyncAt <= Date.now())
 
     if (shouldStartSync) {

@@ -3,6 +3,8 @@ import { mutation } from "./_generated/server"
 import { internal } from "./_generated/api"
 import { requireAuthenticatedUser } from "./auth"
 
+const STUCK_SYNC_MS = 10 * 60 * 1000
+
 export const startInitialSync = mutation({
   args: {
     xAccessToken: v.string(),
@@ -16,7 +18,12 @@ export const startInitialSync = mutation({
       .withIndex("by_userId", (q) => q.eq("userId", user._id))
       .unique()
 
-    if (syncState?.status === "syncing") {
+    const now = Date.now()
+    const isStuckSync =
+      syncState?.status === "syncing" &&
+      (syncState.syncStartedAt ?? 0) < now - STUCK_SYNC_MS
+
+    if (syncState?.status === "syncing" && !isStuckSync) {
       return { status: "already_syncing" as const }
     }
 
@@ -24,6 +31,7 @@ export const startInitialSync = mutation({
       await ctx.db.patch(syncState._id, {
         status: "syncing",
         error: undefined,
+        syncStartedAt: now,
         progress: {
           phase: "bookmarks",
           current: 0,
@@ -34,6 +42,7 @@ export const startInitialSync = mutation({
       await ctx.db.insert("syncState", {
         userId: user._id,
         status: "syncing",
+        syncStartedAt: now,
         progress: {
           phase: "bookmarks",
           current: 0,

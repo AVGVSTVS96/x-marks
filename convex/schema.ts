@@ -124,5 +124,6 @@ export default defineSchema({
       }),
     ),
     nextRecommendedSyncAt: v.optional(v.number()),
+    syncStartedAt: v.optional(v.number()),
   }).index("by_userId", ["userId"]),
 })
