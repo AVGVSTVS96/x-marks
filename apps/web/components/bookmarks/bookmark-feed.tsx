@@ -1,7 +1,6 @@
 "use client"
 
 import { useDeferredValue, useMemo } from "react"
-import { usePreloadedQuery, type Preloaded } from "convex/react"
 
 import { useAppState } from "@/components/layout/app-state-context"
 import { useBookmarkSearch } from "@/hooks/use-bookmarks"
@@ -11,14 +10,13 @@ import { BookmarkGrid } from "./bookmark-grid"
 import { MediaMoodboard } from "@/components/media/media-moodboard"
 import { EmptyState } from "@workspace/ui/components/empty-state"
 import { compareBookmarks } from "@convex/lib/compareBookmarks"
-import { api } from "@convex/_generated/api"
+import type { BookmarkListItem } from "@/components/layout/app-state-context"
 
 interface BookmarkFeedProps {
-  preloadedBookmarks: Preloaded<typeof api.bookmarks.list>
+  bookmarks: BookmarkListItem[]
 }
 
-export function BookmarkFeed({ preloadedBookmarks }: BookmarkFeedProps) {
-  const bookmarks = usePreloadedQuery(preloadedBookmarks)
+export function BookmarkFeed({ bookmarks }: BookmarkFeedProps) {
   const { viewMode, sortField, sortDirection } = useViewPrefs()
   const { searchQuery, activeBookmark, onBookmarkSelect } = useAppState()
 

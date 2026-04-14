@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import type { Preloaded } from "convex/react"
 
+import { AppDataProvider } from "@/components/layout/app-data-context"
 import {
   AppStateProvider,
   type AppState,
@@ -53,35 +54,36 @@ export function AppShell({
 
   return (
     <ConvexProvider>
-      <TooltipProvider>
-        <SidebarProvider>
-          <SidebarPanel
-            viewer={viewer}
-            preloadedFolders={preloadedFolders}
-            preloadedAllBookmarks={preloadedAllBookmarks}
-          />
-          <SidebarInset className="min-w-0">
-            <AppStateProvider value={appState}>
-              <div className="flex h-svh min-w-0 flex-col">
-                <Toolbar />
-                <main className="flex min-w-0 flex-1 overflow-hidden">
-                  <div className={showFeed ? "flex min-w-0 flex-1" : "hidden"}>
-                    {children}
-                  </div>
-                  {activeBookmark ? (
-                    <BookmarkDetail
-                      key={activeBookmark._id}
-                      initialBookmark={activeBookmark}
-                      lightboxSignal={lightboxSignal}
-                      onClose={closeDetail}
-                    />
-                  ) : null}
-                </main>
-              </div>
-            </AppStateProvider>
-          </SidebarInset>
-        </SidebarProvider>
-      </TooltipProvider>
+      <AppDataProvider
+        preloadedFolders={preloadedFolders}
+        preloadedAllBookmarks={preloadedAllBookmarks}
+      >
+        <TooltipProvider>
+          <SidebarProvider>
+            <SidebarPanel viewer={viewer} />
+            <SidebarInset className="min-w-0">
+              <AppStateProvider value={appState}>
+                <div className="flex h-svh min-w-0 flex-col">
+                  <Toolbar />
+                  <main className="flex min-w-0 flex-1 overflow-hidden">
+                    <div className={showFeed ? "flex min-w-0 flex-1" : "hidden"}>
+                      {children}
+                    </div>
+                    {activeBookmark ? (
+                      <BookmarkDetail
+                        key={activeBookmark._id}
+                        initialBookmark={activeBookmark}
+                        lightboxSignal={lightboxSignal}
+                        onClose={closeDetail}
+                      />
+                    ) : null}
+                  </main>
+                </div>
+              </AppStateProvider>
+            </SidebarInset>
+          </SidebarProvider>
+        </TooltipProvider>
+      </AppDataProvider>
     </ConvexProvider>
   )
 }

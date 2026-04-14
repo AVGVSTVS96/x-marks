@@ -1,23 +1,5 @@
-import { auth } from "@clerk/nextjs/server"
-import { preloadQuery } from "convex/nextjs"
+import { RouteBookmarkFeed } from "@/components/bookmarks/route-bookmark-feed"
 
-import { api } from "@convex/_generated/api"
-
-import { BookmarkFeed } from "@/components/bookmarks/bookmark-feed"
-import { DEFAULT_VIEW_PREFS } from "@/lib/constants"
-
-export default async function AppPage() {
-  const { getToken } = await auth()
-  const convexToken = await getToken({ template: "convex" })
-
-  const preloadedBookmarks = await preloadQuery(
-    api.bookmarks.list,
-    {
-      sortBy: DEFAULT_VIEW_PREFS.sortField,
-      sortDir: DEFAULT_VIEW_PREFS.sortDirection,
-    },
-    { token: convexToken ?? undefined },
-  )
-
-  return <BookmarkFeed preloadedBookmarks={preloadedBookmarks} />
+export default function AppPage() {
+  return <RouteBookmarkFeed />
 }

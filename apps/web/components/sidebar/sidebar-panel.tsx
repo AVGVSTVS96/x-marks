@@ -1,9 +1,5 @@
 "use client"
 
-import type { Preloaded } from "convex/react"
-
-import { api } from "@convex/_generated/api"
-
 import type { AppViewer } from "@/lib/app-view-model"
 import { FolderTree } from "./folder-tree"
 import { SidebarHeaderContent } from "./sidebar-header"
@@ -24,15 +20,9 @@ import {
 
 interface SidebarPanelProps {
   viewer: AppViewer
-  preloadedFolders: Preloaded<typeof api.folders.list>
-  preloadedAllBookmarks: Preloaded<typeof api.bookmarks.list>
 }
 
-export function SidebarPanel({
-  viewer,
-  preloadedFolders,
-  preloadedAllBookmarks,
-}: SidebarPanelProps) {
+export function SidebarPanel({ viewer }: SidebarPanelProps) {
   return (
     <Sidebar>
       <SidebarHeader>
@@ -46,10 +36,7 @@ export function SidebarPanel({
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <FolderTree
-                preloadedFolders={preloadedFolders}
-                preloadedAllBookmarks={preloadedAllBookmarks}
-              />
+              <FolderTree />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

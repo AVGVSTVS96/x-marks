@@ -3,24 +3,16 @@
 import { FolderKanban, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { usePreloadedQuery, type Preloaded } from "convex/react"
 
 import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
-import { api } from "@convex/_generated/api"
+import { useAppData } from "@/components/layout/app-data-context"
 
-export function FolderTree({
-  preloadedFolders,
-  preloadedAllBookmarks,
-}: {
-  preloadedFolders: Preloaded<typeof api.folders.list>
-  preloadedAllBookmarks: Preloaded<typeof api.bookmarks.list>
-}) {
-  const folders = usePreloadedQuery(preloadedFolders)
-  const allBookmarks = usePreloadedQuery(preloadedAllBookmarks)
+export function FolderTree() {
+  const { folders, allBookmarks } = useAppData()
   const pathname = usePathname()
 
   const isAllActive = pathname === "/app"
