@@ -12,6 +12,7 @@ export type BookmarkListItem = Doc<"bookmarks"> & {
 
 export interface AppState {
   searchQuery: string
+  onSearchChange: (value: string) => void
   activeBookmark: BookmarkListItem | null
   onBookmarkSelect: (
     bookmark: BookmarkListItem | null,

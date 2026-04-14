@@ -40,7 +40,11 @@ export function BookmarkFeed({ preloadedBookmarks }: BookmarkFeedProps) {
 
   if (displayedBookmarks === undefined || displayedBookmarks.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex flex-1 items-center justify-center"
+      >
         <EmptyState
           title={
             <span className="font-heading text-sm uppercase tracking-wider">

@@ -112,7 +112,7 @@ export function MediaLightbox({
                 >
                   <ChevronRight className="size-5" />
                 </button>
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded border border-border bg-background/80 px-2 py-1 font-heading text-[10px] uppercase tracking-wider text-foreground backdrop-blur-sm">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded border border-border bg-background/80 px-2 py-1 font-heading text-xs uppercase tracking-wider text-foreground backdrop-blur-sm">
                   {(index ?? 0) + 1} / {items.length}
                 </div>
               </>

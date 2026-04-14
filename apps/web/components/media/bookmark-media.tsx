@@ -1,21 +1,20 @@
 "use client"
 
-import type { ViewMode } from "@/lib/constants"
 import { MediaGallery } from "./media-gallery"
 import { MediaStrip } from "./media-strip"
 import type { MediaItem } from "./media-utils"
 
 interface BookmarkMediaProps {
   media: MediaItem[]
-  variant?: ViewMode
   context: "card" | "detail"
+  size?: "sm" | "md"
   lightboxSignal?: { mediaIndex: number; nonce: number } | null
 }
 
 export function BookmarkMedia({
   media,
-  variant,
   context,
+  size,
   lightboxSignal,
 }: BookmarkMediaProps) {
   if (media.length === 0) return null
@@ -24,5 +23,5 @@ export function BookmarkMedia({
     return <MediaGallery media={media} lightboxSignal={lightboxSignal} />
   }
 
-  return <MediaStrip media={media} variant={variant} />
+  return <MediaStrip media={media} size={size} />
 }

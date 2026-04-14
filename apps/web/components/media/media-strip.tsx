@@ -2,20 +2,20 @@
 
 import Image from "next/image"
 import { Play } from "lucide-react"
-import { cva, type VariantProps } from "@workspace/ui/lib/cva"
+import { cva } from "@workspace/ui/lib/cva"
 
-import type { ViewMode } from "@/lib/constants"
 import { MediaBadge } from "./media-badge"
 import { formatDuration, pickPlayableUrl, type MediaItem } from "./media-utils"
+
+type MediaSize = "sm" | "md"
 
 const mediaTileVariants = cva(
   "relative overflow-hidden rounded-lg border border-border bg-muted",
   {
     variants: {
-      viewMode: {
-        list: "h-40 lg:h-52",
-        grid: "h-28 sm:h-32 xl:h-36",
-        media: "h-28 sm:h-32 xl:h-36",
+      size: {
+        sm: "h-28 sm:h-32 xl:h-36",
+        md: "h-40 lg:h-52",
       },
       role: {
         item: "flex-1",
@@ -24,18 +24,18 @@ const mediaTileVariants = cva(
       },
     },
     defaultVariants: {
-      viewMode: "grid",
+      size: "sm",
       role: "item",
     },
   }
 )
 
-interface MediaStripProps extends VariantProps<typeof mediaTileVariants> {
+interface MediaStripProps {
   media: MediaItem[]
-  variant?: ViewMode
+  size?: MediaSize
 }
 
-export function MediaStrip({ media, variant = "grid" }: MediaStripProps) {
+export function MediaStrip({ media, size = "sm" }: MediaStripProps) {
   if (media.length === 0) return null
 
   const visible = media.slice(0, 2)
@@ -44,10 +44,10 @@ export function MediaStrip({ media, variant = "grid" }: MediaStripProps) {
   return (
     <div className="flex gap-1 overflow-hidden">
       {visible.map((item, index) => (
-        <MediaStripItem key={index} item={item} viewMode={variant} />
+        <MediaStripItem key={index} item={item} size={size} />
       ))}
       {overflow > 0 && (
-        <div className={mediaTileVariants({ viewMode: variant, role: "overflow" })}>
+        <div className={mediaTileVariants({ size, role: "overflow" })}>
           +{overflow}
         </div>
       )}
@@ -57,17 +57,17 @@ export function MediaStrip({ media, variant = "grid" }: MediaStripProps) {
 
 function MediaStripItem({
   item,
-  viewMode,
+  size,
 }: {
   item: MediaItem
-  viewMode: ViewMode
+  size: MediaSize
 }) {
   const isVideo = item.type === "video"
   const isGif = item.type === "animated_gif"
   const poster = item.previewUrl ?? (isVideo || isGif ? "" : item.url)
 
   return (
-    <div className={mediaTileVariants({ viewMode, role: "item" })}>
+    <div className={mediaTileVariants({ size, role: "item" })}>
       {isGif ? (
         <video
           src={pickPlayableUrl(item)}
@@ -83,7 +83,7 @@ function MediaStripItem({
           src={poster}
           alt={item.altText ?? ""}
           fill
-          sizes={viewMode === "list" ? "50vw" : "33vw"}
+          sizes={size === "md" ? "50vw" : "33vw"}
           className="object-cover"
         />
       ) : null}

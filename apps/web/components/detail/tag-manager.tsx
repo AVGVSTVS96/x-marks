@@ -43,7 +43,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
             key={tag._id}
             variant="outline"
             radius="md"
-            className="gap-1 border-current pr-1 font-heading text-[10px] uppercase tracking-wider"
+            className="gap-1 border-current pr-1 font-heading text-xs uppercase tracking-wider"
             style={{ color: tag.color }}
           >
             {tag.name}
@@ -60,7 +60,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
 
       <Popover>
         <PopoverTrigger
-          render={<Button variant="ghost" size="xs" radius="lg" className="w-fit gap-1" />}
+          render={<Button variant="ghost" size="xs" className="w-fit gap-1" />}
         >
           <Plus className="size-3.5" />
           Add tag
@@ -69,7 +69,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
           <div className="flex flex-col gap-2">
             {unassignedTags.length > 0 ? (
               <div className="flex flex-col gap-1">
-                <Label variant="eyebrow">Existing</Label>
+                <Label render={<span />} variant="eyebrow">Existing</Label>
                 <div className="flex flex-wrap gap-1">
                   {unassignedTags.map((tag) => (
                     <button
@@ -80,7 +80,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
                       <Badge
                         variant="outline"
                         radius="md"
-                        className="cursor-pointer border-current font-heading text-[10px] uppercase tracking-wider hover:bg-muted"
+                        className="cursor-pointer border-current font-heading text-xs uppercase tracking-wider hover:bg-muted"
                         style={{ color: tag.color }}
                       >
                         {tag.name}
@@ -92,7 +92,7 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
             ) : null}
 
             <div className="flex flex-col gap-1.5">
-              <Label variant="eyebrow">Create new</Label>
+              <Label render={<span />} variant="eyebrow">Create new</Label>
               <div className="flex gap-1.5">
                 <Input
                   value={newTagName}
@@ -108,7 +108,6 @@ export function TagManager({ bookmarkId, existingTags }: TagManagerProps) {
                 <Button
                   size="icon-xs"
                   variant="outline"
-                  radius="lg"
                   onClick={handleCreateAndAssign}
                   disabled={!newTagName.trim()}
                 >

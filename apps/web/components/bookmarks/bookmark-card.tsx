@@ -13,10 +13,9 @@ const bookmarkCardVariants = cva(
   "flex flex-col rounded-2xl border border-border text-left transition-colors",
   {
     variants: {
-      viewMode: {
-        list: "gap-4 p-4 lg:p-5",
-        grid: "gap-3 p-3",
-        media: "gap-3 p-3",
+      size: {
+        sm: "gap-3 p-3",
+        md: "gap-4 p-4 lg:p-5",
       },
       interactive: {
         true: "hover:bg-muted/50",
@@ -28,26 +27,16 @@ const bookmarkCardVariants = cva(
       },
     },
     defaultVariants: {
-      viewMode: "grid",
+      size: "sm",
       interactive: false,
       active: false,
     },
   }
 )
 
-const bookmarkCardMetaVariants = cva(
-  "flex items-center gap-3 font-heading uppercase tracking-wider text-muted-foreground",
-  {
-    variants: {
-      viewMode: {
-        list: "text-[11px]",
-        grid: "text-[10px]",
-        media: "text-[10px]",
-      },
-    },
-    defaultVariants: { viewMode: "grid" },
-  }
-)
+function sizeForViewMode(viewMode: ViewMode): "sm" | "md" {
+  return viewMode === "list" ? "md" : "sm"
+}
 
 interface BookmarkCardProps extends VariantProps<typeof bookmarkCardVariants> {
   bookmark: Doc<"bookmarks"> & {
@@ -66,14 +55,16 @@ export function BookmarkCard({
   isActive,
   onClick,
 }: BookmarkCardProps) {
+  const size = sizeForViewMode(viewMode)
   const timeAgo = formatTimeAgo(bookmark.createdAt)
 
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={isActive}
       className={bookmarkCardVariants({
-        viewMode,
+        size,
         interactive: true,
         active: isActive,
       })}
@@ -85,10 +76,10 @@ export function BookmarkCard({
         text={bookmark.text}
         media={bookmark.media}
         timeAgo={timeAgo}
-        variant={viewMode}
+        size={size}
       />
 
-      <div className={bookmarkCardMetaVariants({ viewMode })}>
+      <div className="flex items-center gap-3 font-heading text-xs uppercase tracking-wider text-muted-foreground">
         <span>{formatCount(bookmark.metrics.likes)} likes</span>
         <span>{formatCount(bookmark.metrics.retweets)} rt</span>
         <span>{formatCount(bookmark.metrics.replies)} replies</span>
@@ -101,7 +92,7 @@ export function BookmarkCard({
               <Badge
                 key={folder._id}
                 variant="secondary"
-                className="gap-1.5 text-[11px]"
+                className="gap-1.5 text-xs"
               >
                 <Folder data-icon="inline-start" />
                 {folder.name}
@@ -111,7 +102,7 @@ export function BookmarkCard({
               <Badge
                 key={tag._id}
                 variant="outline"
-                className="font-heading text-[10px] tracking-wider uppercase"
+                className="font-heading text-xs uppercase tracking-wider"
               >
                 {tag.name}
               </Badge>
@@ -129,9 +120,10 @@ export function BookmarkCard({
 }
 
 export function BookmarkCardSkeleton({ viewMode }: { viewMode: ViewMode }) {
+  const size = sizeForViewMode(viewMode)
   return (
-    <div className={bookmarkCardVariants({ viewMode })}>
-      <TweetPreviewSkeleton variant={viewMode} />
+    <div className={bookmarkCardVariants({ size })}>
+      <TweetPreviewSkeleton size={size} />
 
       <div className="flex items-center gap-3">
         <Skeleton radius="lg" className="h-2.5 w-14" />

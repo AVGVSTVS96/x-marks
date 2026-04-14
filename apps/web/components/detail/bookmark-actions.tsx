@@ -46,15 +46,15 @@ export function BookmarkActions({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label variant="eyebrow">Actions</Label>
+      <Label render={<span />} variant="eyebrow">Actions</Label>
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" radius="lg" className="gap-1" onClick={openOnX}>
+        <Button variant="outline" size="sm" className="gap-1" onClick={openOnX}>
           <ExternalLink className="size-4" />
           View on X
         </Button>
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogTrigger
-            render={<Button variant="destructive" size="sm" radius="lg" className="gap-1" />}
+            render={<Button variant="destructive" size="sm" className="gap-1" />}
           >
             <Trash2 className="size-4" />
             Remove
@@ -65,10 +65,10 @@ export function BookmarkActions({
               This bookmark will be permanently removed from xMarks.
             </DialogDescription>
             <DialogFooter>
-              <DialogClose render={<Button variant="outline" size="sm" radius="lg" />}>
+              <DialogClose render={<Button variant="outline" size="sm" />}>
                 Cancel
               </DialogClose>
-              <Button variant="destructive" size="sm" radius="lg" onClick={handleDelete}>
+              <Button variant="destructive" size="sm" onClick={handleDelete}>
                 Remove
               </Button>
             </DialogFooter>

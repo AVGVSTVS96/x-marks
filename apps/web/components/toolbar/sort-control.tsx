@@ -19,7 +19,7 @@ export function SortControl() {
 
   return (
     <div className="flex items-center gap-1.5">
-      <Label variant="eyebrow" className="font-heading">Sort</Label>
+      <Label render={<span />} variant="eyebrow">Sort</Label>
       <Select
         value={sortField}
         onValueChange={(value) => updatePrefs({ sortField: value as SortField })}
@@ -38,7 +38,6 @@ export function SortControl() {
       <Button
         variant="ghost"
         size="icon-xs"
-        radius="lg"
         aria-label={
           sortDirection === "desc"
             ? "Switch to ascending sort"

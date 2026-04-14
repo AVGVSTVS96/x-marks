@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 
 import { useSyncStatus } from "@/hooks/use-sync-status"
+import { Label } from "@workspace/ui/components/label"
 import { StatusDot } from "@workspace/ui/components/status-dot"
 
 export function SyncStatus({
@@ -35,9 +36,9 @@ export function SyncStatus({
   return (
     <div className="flex items-center gap-1.5">
       <StatusDot status={lastSyncAt ? "success" : "warning"} pulse />
-      <span className="font-heading text-[10px] uppercase tracking-wider text-muted-foreground">
+      <Label render={<span />} variant="eyebrow">
         {formatSyncTime(lastSyncAt, now)}
-      </span>
+      </Label>
     </div>
   )
 }

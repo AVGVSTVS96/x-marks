@@ -42,7 +42,7 @@ export function NoteEditor({
         onBlur={handleSave}
       />
       {isDirty ? (
-        <Button size="xs" radius="lg" className="w-fit" onClick={handleSave}>
+        <Button size="xs" className="w-fit" onClick={handleSave}>
           Save
         </Button>
       ) : null}

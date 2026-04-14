@@ -34,7 +34,7 @@ export default async function AppLayout({
           <div className="pt-3">
             <Link
               href="/"
-              className={buttonVariants({ variant: "outline", radius: "lg" })}
+              className={buttonVariants({ variant: "outline" })}
             >
               Back home
             </Link>

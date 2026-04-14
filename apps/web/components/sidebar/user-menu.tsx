@@ -37,7 +37,7 @@ export function UserMenu({ viewer }: { viewer: AppViewer }) {
           <button
             type="button"
             className={cn(
-              buttonVariants({ variant: "outline", size: "sm", radius: "lg" }),
+              buttonVariants({ variant: "outline", size: "sm" }),
               "mt-2 w-full justify-center"
             )}
           >

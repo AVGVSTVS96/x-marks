@@ -3,15 +3,11 @@
 import { Search } from "lucide-react"
 import { useEffect, useRef } from "react"
 
+import { useAppState } from "@/components/layout/app-state-context"
 import { Input } from "@workspace/ui/components/input"
 
-export function SearchBar({
-  value,
-  onChange,
-}: {
-  value: string
-  onChange: (value: string) => void
-}) {
+export function SearchBar() {
+  const { searchQuery, onSearchChange } = useAppState()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -21,27 +17,27 @@ export function SearchBar({
         inputRef.current?.focus()
       }
       if (event.key === "Escape" && document.activeElement === inputRef.current) {
-        onChange("")
+        onSearchChange("")
         inputRef.current?.blur()
       }
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [onChange])
+  }, [onSearchChange])
 
   return (
     <div className="relative max-w-sm flex-1">
       <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         ref={inputRef}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
+        value={searchQuery}
+        onChange={(event) => onSearchChange(event.target.value)}
         placeholder="Search bookmarks..."
         className="h-8 rounded-lg pl-8 text-sm"
       />
-      {!value ? (
-        <kbd className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 font-heading text-[10px] text-muted-foreground">
+      {!searchQuery ? (
+        <kbd className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 font-heading text-xs text-muted-foreground">
           ⌘K
         </kbd>
       ) : null}

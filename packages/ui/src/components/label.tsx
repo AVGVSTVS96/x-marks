@@ -1,4 +1,7 @@
-import * as React from "react"
+"use client"
+
+import { mergeProps } from "@base-ui/react/merge-props"
+import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -9,7 +12,7 @@ const labelVariants = cva("inline-flex items-center", {
       default: "text-sm font-medium text-foreground",
       muted: "text-sm font-medium text-muted-foreground",
       eyebrow:
-        "text-[10px] font-medium uppercase tracking-eyebrow text-muted-foreground",
+        "font-heading text-xs font-medium uppercase tracking-eyebrow text-muted-foreground",
     },
   },
   defaultVariants: {
@@ -20,15 +23,23 @@ const labelVariants = cva("inline-flex items-center", {
 function Label({
   className,
   variant,
+  render,
   ...props
-}: React.ComponentProps<"label"> & VariantProps<typeof labelVariants>) {
-  return (
-    <label
-      data-slot="label"
-      className={cn(labelVariants({ variant }), className)}
-      {...props}
-    />
-  )
+}: useRender.ComponentProps<"label"> & VariantProps<typeof labelVariants>) {
+  return useRender({
+    defaultTagName: "label",
+    props: mergeProps<"label">(
+      {
+        className: cn(labelVariants({ variant }), className),
+      },
+      props
+    ),
+    render,
+    state: {
+      slot: "label",
+      variant,
+    },
+  })
 }
 
 export { Label, labelVariants }

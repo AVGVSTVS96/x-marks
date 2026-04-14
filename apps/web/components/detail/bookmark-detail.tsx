@@ -54,13 +54,12 @@ export function BookmarkDetail({
             authorAvatarUrl={display.authorAvatarUrl}
             text={display.text}
             timeAgo={formatDate(display.createdAt)}
-            variant="list"
+            size="md"
           />
 
           {display.media.length > 0 && (
             <BookmarkMedia
               media={display.media}
-              variant="list"
               context="detail"
               lightboxSignal={lightboxSignal}
             />
@@ -75,14 +74,14 @@ export function BookmarkDetail({
           <Separator />
 
           <div>
-            <Label variant="eyebrow" className="mb-2">Tags</Label>
+            <Label render={<span />} variant="eyebrow" className="mb-2">Tags</Label>
             <TagManager bookmarkId={bookmarkId} existingTags={display.tags} />
           </div>
 
           <Separator />
 
           <div>
-            <Label variant="eyebrow" className="mb-2">Note</Label>
+            <Label render={<span />} variant="eyebrow" className="mb-2">Note</Label>
             {isNoteLoading ? (
               <Skeleton radius="lg" className="h-16 w-full" />
             ) : (
@@ -118,8 +117,8 @@ function DetailShell({
   return (
     <div className="flex w-full shrink-0 flex-col border-l border-border bg-background lg:w-[clamp(18rem,40%,28rem)] xl:w-[min(38vw,32rem)] 2xl:w-[min(34vw,36rem)]">
       <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <Label variant="eyebrow">Detail</Label>
-        <Button variant="ghost" size="icon-xs" radius="lg" onClick={onClose}>
+        <Label render={<span />} variant="eyebrow">Detail</Label>
+        <Button variant="ghost" size="icon-xs" onClick={onClose}>
           <X className="size-3.5" />
         </Button>
       </div>

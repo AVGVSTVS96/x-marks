@@ -42,6 +42,7 @@ export function AppShell({
   const appState = useMemo<AppState>(
     () => ({
       searchQuery,
+      onSearchChange: setSearchQuery,
       activeBookmark,
       onBookmarkSelect: selectBookmark,
     }),
@@ -60,26 +61,24 @@ export function AppShell({
             preloadedAllBookmarks={preloadedAllBookmarks}
           />
           <SidebarInset className="min-w-0">
-            <div className="flex h-svh min-w-0 flex-col">
-              <Toolbar
-                search={{ value: searchQuery, onChange: setSearchQuery }}
-              />
-              <div className="flex min-w-0 flex-1 overflow-hidden">
-                <AppStateProvider value={appState}>
+            <AppStateProvider value={appState}>
+              <div className="flex h-svh min-w-0 flex-col">
+                <Toolbar />
+                <main className="flex min-w-0 flex-1 overflow-hidden">
                   <div className={showFeed ? "flex min-w-0 flex-1" : "hidden"}>
                     {children}
                   </div>
-                </AppStateProvider>
-                {activeBookmark ? (
-                  <BookmarkDetail
-                    key={activeBookmark._id}
-                    initialBookmark={activeBookmark}
-                    lightboxSignal={lightboxSignal}
-                    onClose={closeDetail}
-                  />
-                ) : null}
+                  {activeBookmark ? (
+                    <BookmarkDetail
+                      key={activeBookmark._id}
+                      initialBookmark={activeBookmark}
+                      lightboxSignal={lightboxSignal}
+                      onClose={closeDetail}
+                    />
+                  ) : null}
+                </main>
               </div>
-            </div>
+            </AppStateProvider>
           </SidebarInset>
         </SidebarProvider>
       </TooltipProvider>
