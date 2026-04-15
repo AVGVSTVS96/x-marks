@@ -1,12 +1,26 @@
 import { auth } from "@clerk/nextjs/server"
 import { preloadQuery } from "convex/nextjs"
+import { Suspense } from "react"
 
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
 
+import { BookmarkFeedLoading } from "@/components/bookmarks/bookmark-feed-loading"
 import { RouteBookmarkFeed } from "@/components/bookmarks/route-bookmark-feed"
 
-export default async function FolderPage({
+export default function FolderPage({
+  params,
+}: {
+  params: Promise<{ folderId: string }>
+}) {
+  return (
+    <Suspense fallback={<BookmarkFeedLoading />}>
+      <FolderBookmarksFeed params={params} />
+    </Suspense>
+  )
+}
+
+async function FolderBookmarksFeed({
   params,
 }: {
   params: Promise<{ folderId: string }>
