@@ -12,7 +12,7 @@ import {
 import { useAppData } from "@/components/layout/app-data-context"
 
 export function FolderTree() {
-  const { folders, allBookmarks } = useAppData()
+  const { folders, totalBookmarks } = useAppData()
   const pathname = usePathname()
 
   const isAllActive = pathname === "/app"
@@ -28,7 +28,7 @@ export function FolderTree() {
           <LayoutGrid className="size-4" />
           <span>All</span>
         </SidebarMenuButton>
-        <SidebarMenuBadge>{allBookmarks.length}</SidebarMenuBadge>
+        <SidebarMenuBadge>{totalBookmarks}</SidebarMenuBadge>
       </SidebarMenuItem>
 
       {folders.map((folder) => {

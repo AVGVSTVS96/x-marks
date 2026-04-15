@@ -7,6 +7,7 @@ import { api } from "@convex/_generated/api"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { resolveAppSession } from "@/lib/server/app-session"
+import { getServerViewPrefs } from "@/lib/server/view-prefs"
 import { buttonVariants } from "@workspace/ui/lib/button-variants"
 import { Card } from "@workspace/ui/components/card"
 
@@ -45,17 +46,16 @@ export default async function AppLayout({
   }
 
   const convexToken = await getToken({ template: "convex" })
-
-  const [preloadedFolders, preloadedAllBookmarks] = await Promise.all([
-    preloadQuery(api.folders.list, {}, { token: convexToken ?? undefined }),
-    preloadQuery(api.bookmarks.list, {}, { token: convexToken ?? undefined }),
+  const [initialViewPrefs, preloadedSidebarData] = await Promise.all([
+    getServerViewPrefs(),
+    preloadQuery(api.folders.sidebarData, {}, { token: convexToken ?? undefined }),
   ])
 
   return (
     <AppShell
       viewer={appSession.viewer}
-      preloadedFolders={preloadedFolders}
-      preloadedAllBookmarks={preloadedAllBookmarks}
+      initialViewPrefs={initialViewPrefs}
+      preloadedSidebarData={preloadedSidebarData}
     >
       {children}
     </AppShell>

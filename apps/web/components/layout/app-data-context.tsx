@@ -6,35 +6,30 @@ import { usePreloadedQuery, type Preloaded } from "convex/react"
 import { api } from "@convex/_generated/api"
 import type { Doc } from "@convex/_generated/dataModel"
 
-import type { BookmarkListItem } from "./app-state-context"
-
 type FolderListItem = Doc<"folders"> & {
   bookmarkCount: number
 }
 
 interface AppDataValue {
   folders: FolderListItem[]
-  allBookmarks: BookmarkListItem[]
+  totalBookmarks: number
 }
 
 const AppDataContext = createContext<AppDataValue | null>(null)
 
 interface AppDataProviderProps {
-  preloadedFolders: Preloaded<typeof api.folders.list>
-  preloadedAllBookmarks: Preloaded<typeof api.bookmarks.list>
+  preloadedSidebarData: Preloaded<typeof api.folders.sidebarData>
   children: React.ReactNode
 }
 
 export function AppDataProvider({
-  preloadedFolders,
-  preloadedAllBookmarks,
+  preloadedSidebarData,
   children,
 }: AppDataProviderProps) {
-  const folders = usePreloadedQuery(preloadedFolders)
-  const allBookmarks = usePreloadedQuery(preloadedAllBookmarks)
+  const sidebarData = usePreloadedQuery(preloadedSidebarData)
 
   return (
-    <AppDataContext.Provider value={{ folders, allBookmarks }}>
+    <AppDataContext.Provider value={sidebarData}>
       {children}
     </AppDataContext.Provider>
   )

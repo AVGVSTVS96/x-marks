@@ -91,6 +91,7 @@ export default defineSchema({
     folderId: v.id("folders"),
     userId: v.id("users"),
   })
+    .index("by_userId", ["userId"])
     .index("by_folderId_userId", ["folderId", "userId"])
     .index("by_bookmarkId", ["bookmarkId"])
     .index("by_folderId_bookmarkId", ["folderId", "bookmarkId"]),

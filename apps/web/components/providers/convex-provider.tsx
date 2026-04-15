@@ -9,7 +9,7 @@ import { ConvexReactClient } from "convex/react"
 const defaultConvexUrl = process.env.NEXT_PUBLIC_CONVEX_URL
 
 function createClient(url: string) {
-  return new ConvexReactClient(url)
+  return new ConvexReactClient(url, { expectAuth: true })
 }
 
 type ConvexProviderProps = {

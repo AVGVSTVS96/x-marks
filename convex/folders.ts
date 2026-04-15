@@ -1,6 +1,46 @@
 import { v } from "convex/values"
+
+import type { Id } from "./_generated/dataModel"
 import { mutation, query } from "./_generated/server"
+import type { QueryCtx } from "./_generated/server"
 import { getAuthenticatedUser, requireAuthenticatedUser } from "./auth"
+
+async function getSidebarData(ctx: QueryCtx, userId: Id<"users">) {
+  const [folders, bookmarks, memberships] = await Promise.all([
+    ctx.db
+      .query("folders")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect(),
+    ctx.db
+      .query("bookmarks")
+      .withIndex("by_userId_bookmarkedAt", (q) => q.eq("userId", userId))
+      .collect(),
+    ctx.db
+      .query("bookmarkFolders")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect(),
+  ])
+
+  const folderCounts = new Map<Id<"folders">, number>()
+  for (const membership of memberships) {
+    folderCounts.set(
+      membership.folderId,
+      (folderCounts.get(membership.folderId) ?? 0) + 1,
+    )
+  }
+
+  const foldersWithCounts = folders
+    .map((folder) => ({
+      ...folder,
+      bookmarkCount: folderCounts.get(folder._id) ?? 0,
+    }))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+
+  return {
+    folders: foldersWithCounts,
+    totalBookmarks: bookmarks.length,
+  }
+}
 
 export const list = query({
   args: {},
@@ -8,28 +48,23 @@ export const list = query({
     const user = await getAuthenticatedUser(ctx)
     if (!user) return []
 
-    const folders = await ctx.db
-      .query("folders")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
-      .collect()
+    const { folders } = await getSidebarData(ctx, user._id)
+    return folders
+  },
+})
 
-    const foldersWithCounts = await Promise.all(
-      folders.map(async (folder) => {
-        const memberships = await ctx.db
-          .query("bookmarkFolders")
-          .withIndex("by_folderId_userId", (q) =>
-            q.eq("folderId", folder._id).eq("userId", user._id),
-          )
-          .collect()
+export const sidebarData = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUser(ctx)
+    if (!user) {
+      return {
+        folders: [],
+        totalBookmarks: 0,
+      }
+    }
 
-        return {
-          ...folder,
-          bookmarkCount: memberships.length,
-        }
-      }),
-    )
-
-    return foldersWithCounts.sort((a, b) => a.sortOrder - b.sortOrder)
+    return getSidebarData(ctx, user._id)
   },
 })
 

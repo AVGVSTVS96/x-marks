@@ -1,27 +1,26 @@
 "use client"
 
-import { useMemo } from "react"
+import { useDeferredValue } from "react"
+import { useConvexAuth, usePreloadedQuery, type Preloaded } from "convex/react"
 
-import { useAppData } from "@/components/layout/app-data-context"
+import { api } from "@convex/_generated/api"
 import { BookmarkFeed } from "./bookmark-feed"
-import type { Id } from "@convex/_generated/dataModel"
 
 interface RouteBookmarkFeedProps {
-  folderId?: Id<"folders">
+  preloaded: Preloaded<typeof api.bookmarks.list>
 }
 
-export function RouteBookmarkFeed({ folderId }: RouteBookmarkFeedProps) {
-  const { allBookmarks } = useAppData()
+export function RouteBookmarkFeed({ preloaded }: RouteBookmarkFeedProps) {
+  const bookmarks = usePreloadedQuery(preloaded)
+  const deferredBookmarks = useDeferredValue(bookmarks)
+  const { isLoading: isConvexAuthLoading } = useConvexAuth()
 
-  const bookmarks = useMemo(() => {
-    if (!folderId) {
-      return allBookmarks
-    }
+  const visibleBookmarks =
+    isConvexAuthLoading &&
+    bookmarks.length === 0 &&
+    deferredBookmarks.length > 0
+      ? deferredBookmarks
+      : bookmarks
 
-    return allBookmarks.filter((bookmark) =>
-      bookmark.folders.some((folder) => folder._id === folderId),
-    )
-  }, [allBookmarks, folderId])
-
-  return <BookmarkFeed bookmarks={bookmarks} />
+  return <BookmarkFeed bookmarks={visibleBookmarks} />
 }
