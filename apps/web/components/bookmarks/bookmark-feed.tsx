@@ -1,11 +1,13 @@
 "use client"
 
-import { useDeferredValue, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { useAppState } from "@/components/layout/app-state-context"
 import { useBookmarkSearch } from "@/hooks/use-bookmarks"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { useViewPrefs } from "@/hooks/use-view-prefs"
 import { BookmarkCard } from "./bookmark-card"
+import { BookmarkFeedLoading } from "./bookmark-feed-loading"
 import { BookmarkGrid } from "./bookmark-grid"
 import { MediaMoodboard } from "@/components/media/media-moodboard"
 import { EmptyState } from "@workspace/ui/components/empty-state"
@@ -20,23 +22,55 @@ export function BookmarkFeed({ bookmarks }: BookmarkFeedProps) {
   const { viewMode, sortField, sortDirection } = useViewPrefs()
   const { searchQuery, activeBookmark, onBookmarkSelect } = useAppState()
 
-  const deferredSearchQuery = useDeferredValue(searchQuery)
-  const searchResults = useBookmarkSearch(deferredSearchQuery)
-  const isSearching = deferredSearchQuery.trim().length > 0
+  const searchTerm = searchQuery.trim()
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 150)
+  const searchResults = useBookmarkSearch(debouncedSearchTerm)
+  const isSearching = searchTerm.length > 0
+  const [lastResolvedSearchResults, setLastResolvedSearchResults] = useState<
+    BookmarkListItem[] | null
+  >(null)
+
+  useEffect(() => {
+    if (searchResults === undefined) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setLastResolvedSearchResults((previous) =>
+        previous === searchResults ? previous : searchResults,
+      )
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [searchResults])
+
+  const visibleBookmarks = useMemo(() => {
+    if (!isSearching) {
+      return bookmarks
+    }
+
+    return searchResults ?? lastResolvedSearchResults ?? []
+  }, [bookmarks, isSearching, lastResolvedSearchResults, searchResults])
 
   const displayedBookmarks = useMemo(() => {
-    const source = isSearching ? searchResults : bookmarks
-    if (!source) return undefined
-    return source
+    return visibleBookmarks
       .slice()
       .sort((left, right) =>
         compareBookmarks(left, right, sortField, sortDirection),
       )
-  }, [bookmarks, isSearching, searchResults, sortField, sortDirection])
+  }, [sortDirection, sortField, visibleBookmarks])
 
   const activeBookmarkId = activeBookmark?._id ?? null
+  const isSearchLoading =
+    isSearching &&
+    searchResults === undefined &&
+    lastResolvedSearchResults == null
 
-  if (displayedBookmarks === undefined || displayedBookmarks.length === 0) {
+  if (isSearchLoading) {
+    return <BookmarkFeedLoading />
+  }
+
+  if (displayedBookmarks.length === 0) {
     return (
       <div
         role="status"
