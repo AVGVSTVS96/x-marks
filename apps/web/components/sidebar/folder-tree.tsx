@@ -1,7 +1,6 @@
 "use client"
 
 import { FolderKanban, LayoutGrid } from "lucide-react"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import {
@@ -10,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
 import { useAppData } from "@/components/layout/app-data-context"
+import { SmartLink } from "@/components/ui/smart-link"
 
 export function FolderTree() {
   const { folders, totalBookmarks } = useAppData()
@@ -23,7 +23,7 @@ export function FolderTree() {
         <SidebarMenuButton
           isActive={isAllActive}
           tooltip="All Bookmarks"
-          render={<Link href="/app" prefetch />}
+          render={<SmartLink href="/app" eager />}
         >
           <LayoutGrid className="size-4" />
           <span>All</span>
@@ -39,7 +39,7 @@ export function FolderTree() {
             <SidebarMenuButton
               isActive={isActive}
               tooltip={folder.name}
-              render={<Link href={href} prefetch />}
+              render={<SmartLink href={href} eager />}
             >
               <FolderKanban
                 className="size-4"
